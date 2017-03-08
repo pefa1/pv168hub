@@ -22,7 +22,7 @@ public class CustomerManagerImpl implements CustomerManager{
     }
 
     @Override
-    public void deleteCustomer(int id) {
+    public void deleteCustomer(long id) {
 
     }
 
@@ -32,7 +32,7 @@ public class CustomerManagerImpl implements CustomerManager{
     }
 
     @Override
-    public Customer getCustomerById(int id) {
+    public Customer getCustomerById(long id) {
         return null;
     }
 }

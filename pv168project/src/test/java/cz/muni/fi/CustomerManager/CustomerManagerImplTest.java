@@ -8,7 +8,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by pefa1 on 8.3.2017.
+ * Created by Marek Pfliegler on 8.3.2017.
  */
 public class CustomerManagerImplTest {
 
@@ -35,9 +35,17 @@ public class CustomerManagerImplTest {
     }
 
     @Test
+    public void createSameCustomer() throws Exception {
+
+    }
+
+    @Test
     public void createCustomer() throws Exception {
         Customer customer = new Customer("hajzel", "email@email.com");
         assertNotNull("customer is null", customer);
+        customer.setId(0L);
+        customerManager.createCustomer(customer);
+        assertEquals(0L, customerManager.getCustomerById(0L));
     }
 
     @Test

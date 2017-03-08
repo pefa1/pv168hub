@@ -14,10 +14,10 @@ public interface CustomerManager {
 
     public void updateCustomer(Customer customer);
 
-    public void deleteCustomer(int id);
+    public void deleteCustomer(long id);
 
     public List<Customer> listAllCustomers();
 
-    public Customer getCustomerById(int id);
+    public Customer getCustomerById(long id);
 
 }
