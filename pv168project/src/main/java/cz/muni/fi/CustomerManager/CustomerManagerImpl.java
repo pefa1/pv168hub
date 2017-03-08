@@ -2,7 +2,7 @@ package cz.muni.fi.CustomerManager;
 
 import cz.muni.fi.Customer;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Marek Pfliegler on 8.3.2017.
@@ -27,7 +27,7 @@ public class CustomerManagerImpl implements CustomerManager{
     }
 
     @Override
-    public List<Customer> listAllCustomers() {
+    public Set<Customer> listAllCustomers() {
         return null;
     }
 

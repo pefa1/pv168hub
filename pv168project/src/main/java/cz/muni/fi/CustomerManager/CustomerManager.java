@@ -2,7 +2,7 @@ package cz.muni.fi.CustomerManager;
 
 import cz.muni.fi.Customer;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Marek Pfliegler on 8.3.2017.
@@ -16,7 +16,7 @@ public interface CustomerManager {
 
     public void deleteCustomer(long id);
 
-    public List<Customer> listAllCustomers();
+    public Set<Customer> listAllCustomers();
 
     public Customer getCustomerById(long id);
 
