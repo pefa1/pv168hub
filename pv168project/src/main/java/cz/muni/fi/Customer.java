@@ -6,19 +6,17 @@ import java.util.Date;
  * Created by Marek Pfliegler on 8.3.2017.
  */
 public class Customer {
-    private int id;
+    private long id;
     private String fullName;
     private String email;
     private Date dateOfBirth;
 
-    public Customer(int id, String fullName, String email, Date dateOfBirth) {
-        this.id = id;
+    public Customer(String fullName, String email) {
         this.fullName = fullName;
         this.email = email;
-        this.dateOfBirth = dateOfBirth;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -65,7 +63,7 @@ public class Customer {
 
     @Override
     public int hashCode() {
-        int result = id;
+        int result = (int) (id ^ (id >>> 32));
         result = 31 * result + (fullName != null ? fullName.hashCode() : 0);
         result = 31 * result + (email != null ? email.hashCode() : 0);
         result = 31 * result + (dateOfBirth != null ? dateOfBirth.hashCode() : 0);
