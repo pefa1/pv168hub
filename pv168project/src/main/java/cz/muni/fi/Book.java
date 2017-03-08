@@ -4,22 +4,13 @@ package cz.muni.fi;
  * Created by Marek Pfliegler on 8.3.2017.
  */
 public class Book {
-    private int id;
+    private Long id;
     private String author;
     private String title;
 
-    public Book(int id, String author, String title) {
-        this.id = id;
+    public Book(String author, String title) {
         this.author = author;
         this.title = title;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getAuthor() {
@@ -45,16 +36,24 @@ public class Book {
 
         Book book = (Book) o;
 
-        if (id != book.id) return false;
+        if (id != null ? !id.equals(book.id) : book.id != null) return false;
         if (author != null ? !author.equals(book.author) : book.author != null) return false;
         return title != null ? title.equals(book.title) : book.title == null;
     }
 
     @Override
     public int hashCode() {
-        int result = id;
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (author != null ? author.hashCode() : 0);
         result = 31 * result + (title != null ? title.hashCode() : 0);
         return result;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
     }
 }
