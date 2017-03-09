@@ -8,7 +8,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by Marek Pfliegler on 8.3.2017.
+ * Created by Marek Pfliegler on 8.1.2017.
  */
 public class CustomerManagerImplTest {
 
@@ -16,7 +16,7 @@ public class CustomerManagerImplTest {
 
     @Before
     public void setUp() throws Exception {
-        customerManager = new CustomerManagerImpl();
+        customerManager = new CustomerManagerImpl(); // medzi testami ostava iba to co je tu, pred kazdym testom sa spusti setup
     }
 
     @After
@@ -38,8 +38,8 @@ public class CustomerManagerImplTest {
         Customer customer = new Customer("dilino", "email@mail.com");
         Customer customer1 = new Customer("dilino", "email@mail.com");
 
-        customer.setId(2L);
-        customer1.setId(2L);
+        customer.setId(1L);
+        customer1.setId(1L);
 
         assertTrue("customer and customer1 are the same", customer.equals(customer1));
 
@@ -47,6 +47,29 @@ public class CustomerManagerImplTest {
         try {
             customerManager.createCustomer(customer1);
         } catch (IllegalArgumentException ex){
+        }
+
+        customer1.setFullName("tento");
+
+        try {
+            customerManager.createCustomer(customer1);
+        } catch (IllegalArgumentException ex) {
+        }
+
+        customer1.setFullName("dilino");
+        customer1.setEmail("mail@mail.com");
+
+        try {
+            customerManager.createCustomer(customer1);
+        } catch (IllegalArgumentException ex) {
+        }
+
+        customer1.setEmail("email@email.com");
+        customer1.setId(2L);
+
+        try {
+            customerManager.createCustomer(customer1);
+        } catch (IllegalArgumentException ex) {
         }
     }
 
@@ -76,26 +99,38 @@ public class CustomerManagerImplTest {
     @Test
     public void updateCustomer() throws Exception {
         Customer customer = new Customer("blabla", "email@mail.sk");
-        customer.setId(3L);
+        customer.setId(1L);
         customerManager.createCustomer(customer);
 
-        assertEquals("customer should be in the manager", customer, customerManager.getCustomerById(3L));
+        assertEquals("customer should be in the manager", customer, customerManager.getCustomerById(1L));
 
-        assertEquals("name should be blabla", "blabla", customerManager.getCustomerById(3L).getFullName());
-        customerManager.getCustomerById(3L).setFullName("zmena");
+        assertEquals("name should be blabla", "blabla", customerManager.getCustomerById(1L).getFullName());
+        customerManager.getCustomerById(1L).setFullName("zmena");
 
-        assertEquals("name should be zmena", "zmena", customerManager.getCustomerById(3L).getFullName());
+        assertEquals("name should be zmena", "zmena", customerManager.getCustomerById(1L).getFullName());
 
-        assertEquals("email should be email@mail.sk", "email@mail.sk", customerManager.getCustomerById(3L).getEmail());
-        customerManager.getCustomerById(3L).setEmail("mail@email.cz");
+        assertEquals("email should be email@mail.sk", "email@mail.sk", customerManager.getCustomerById(1L).getEmail());
+        customerManager.getCustomerById(1L).setEmail("mail@email.cz");
         customerManager.updateCustomer(customer);
-        assertEquals("email should be email@mail.sk", "mail@email.cz", customerManager.getCustomerById(3L).getEmail());
+        assertEquals("email should be email@mail.sk", "mail@email.cz", customerManager.getCustomerById(1L).getEmail());
 
 
-        assertEquals("id should be 3L", 3L, customer.getId());
-        customerManager.getCustomerById(3L).setId(4L);
+        assertEquals("id should be 1L", 1L, customer.getId());
+        customerManager.getCustomerById(1L).setId(2L);
         customerManager.updateCustomer(customer);
-        assertEquals("id should be 4L", 4L, customer.getId());
+        assertEquals("id should be 2L", 2L, customer.getId());
+    }
+
+    @Test
+    public void updateCustomerOnExisting() throws Exception {
+        Customer customer = new Customer("neviem", "email@email.com");
+        Customer customer1 = new Customer("tento", "email@mail.com");
+        customer.setId(1L);
+        customer1.setId(2L);
+
+        customerManager.createCustomer(customer);
+        customerManager.createCustomer(customer1);
+        
     }
 
     @Test
