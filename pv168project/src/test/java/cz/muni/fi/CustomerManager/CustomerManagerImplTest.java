@@ -83,15 +83,18 @@ public class CustomerManagerImplTest {
 
         assertEquals("name should be blabla", "blabla", customerManager.getCustomerById(3L).getFullName());
         customerManager.getCustomerById(3L).setFullName("zmena");
+
         assertEquals("name should be zmena", "zmena", customerManager.getCustomerById(3L).getFullName());
 
         assertEquals("email should be email@mail.sk", "email@mail.sk", customerManager.getCustomerById(3L).getEmail());
         customerManager.getCustomerById(3L).setEmail("mail@email.cz");
+        customerManager.updateCustomer(customer);
         assertEquals("email should be email@mail.sk", "mail@email.cz", customerManager.getCustomerById(3L).getEmail());
 
 
         assertEquals("id should be 3L", 3L, customer.getId());
         customerManager.getCustomerById(3L).setId(4L);
+        customerManager.updateCustomer(customer);
         assertEquals("id should be 4L", 4L, customer.getId());
     }
 
