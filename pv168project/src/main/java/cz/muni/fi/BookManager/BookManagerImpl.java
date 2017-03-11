@@ -19,7 +19,7 @@ public class BookManagerImpl implements BookManager {
     }
 
     @Override
-    public void deleteBook(Long id) {
+    public void deleteBook(long id) {
 
     }
 
@@ -34,7 +34,7 @@ public class BookManagerImpl implements BookManager {
     }
 
     @Override
-    public Book getBookById(Long id) {
+    public Book getBookById(long id) {
         return null;
     }
 }

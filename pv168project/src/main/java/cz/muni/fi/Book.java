@@ -4,11 +4,33 @@ package cz.muni.fi;
  * Created by Marek Pfliegler on 8.3.2017.
  */
 public class Book {
-    private Long id;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Book book = (Book) o;
+
+        if (id != book.id) return false;
+        if (author != null ? !author.equals(book.author) : book.author != null) return false;
+        return !(title != null ? !title.equals(book.title) : book.title != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (author != null ? author.hashCode() : 0);
+        result = 31 * result + (title != null ? title.hashCode() : 0);
+        return result;
+    }
+
+    private long id;
     private String author;
     private String title;
 
-    public Book(String author, String title) {
+    public Book(long id, String author, String title) {
+        this.id = id;
         this.author = author;
         this.title = title;
     }
@@ -29,31 +51,11 @@ public class Book {
         this.title = title;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Book book = (Book) o;
-
-        if (id != null ? !id.equals(book.id) : book.id != null) return false;
-        if (author != null ? !author.equals(book.author) : book.author != null) return false;
-        return title != null ? title.equals(book.title) : book.title == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (author != null ? author.hashCode() : 0);
-        result = 31 * result + (title != null ? title.hashCode() : 0);
-        return result;
-    }
-
     public void setId(Long id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 }
