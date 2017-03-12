@@ -26,15 +26,24 @@ public class CustomerManagerImplTest {
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void createNullCustomer() throws Exception {
-        customerManager.createCustomer(null);
+        Customer customer = new Customer("full name", "email@email.com");
+        customer.setId(2L);
+
+        customerManager.createCustomer(customer);
+
+        try {
+            customerManager.createCustomer(null);
+        } catch (IllegalArgumentException ex) {
+            fail("creating null customer" + ex);
+        }
     }
 
     @Test
     public void createSameCustomer() throws Exception {
-        Customer customer = new Customer("dilino", "email@mail.com");
-        Customer customer1 = new Customer("dilino", "email@mail.com");
+        Customer customer = new Customer("trampam", "email@mail.com");
+        Customer customer1 = new Customer("trampam", "email@mail.com");
 
         customer.setId(1L);
         customer1.setId(1L);
@@ -56,7 +65,7 @@ public class CustomerManagerImplTest {
             fail("customer1 should not be created" + ex);
         }
 
-        customer1.setFullName("dilino");
+        customer1.setFullName("trampam*");
         customer1.setEmail("mail@mail.com");
 
         try {
@@ -77,7 +86,7 @@ public class CustomerManagerImplTest {
 
     @Test
     public void createCustomer() throws Exception {
-        Customer customer = new Customer("hajzel", "email@email.com");
+        Customer customer = new Customer("bam", "email@email.com");
         assertNotNull("customer is null", customer);
 
         customer.setId(0L);
