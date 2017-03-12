@@ -5,14 +5,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+
 import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 
 /**
  * Created by Marek Pfliegler on 8.1.2017.
  */
 public class CustomerManagerImplTest {
 
-    CustomerManager customerManager;
+    private CustomerManager customerManager;
 
     @Before
     public void setUp() throws Exception {
@@ -27,9 +29,9 @@ public class CustomerManagerImplTest {
     @Test
     public void createNullCustomer() throws Exception {
         try {
-            CustomerManager customerManager = new CustomerManagerImpl();
             customerManager.createCustomer(null);
         } catch (IllegalArgumentException ex) {
+            fail("customer should not be created" + ex);
         }
     }
 
@@ -46,7 +48,8 @@ public class CustomerManagerImplTest {
         customerManager.createCustomer(customer);
         try {
             customerManager.createCustomer(customer1);
-        } catch (IllegalArgumentException ex){
+        } catch (IllegalArgumentException ex) {
+            fail("customer1 should not be created" + ex);
         }
 
         customer1.setFullName("tento");
@@ -54,6 +57,7 @@ public class CustomerManagerImplTest {
         try {
             customerManager.createCustomer(customer1);
         } catch (IllegalArgumentException ex) {
+            fail("customer1 should not be created" + ex);
         }
 
         customer1.setFullName("dilino");
@@ -62,6 +66,7 @@ public class CustomerManagerImplTest {
         try {
             customerManager.createCustomer(customer1);
         } catch (IllegalArgumentException ex) {
+            fail("customer1 should not be created" + ex);
         }
 
         customer1.setEmail("email@email.com");
@@ -70,6 +75,7 @@ public class CustomerManagerImplTest {
         try {
             customerManager.createCustomer(customer1);
         } catch (IllegalArgumentException ex) {
+            fail("customer1 should not be created" + ex);
         }
     }
 
@@ -94,6 +100,26 @@ public class CustomerManagerImplTest {
 
         assertEquals("customer1 cannot be found by id", customer1, customerManager.getCustomerById(1L));
         assertEquals("customer cannot be found by id", customer, customerManager.getCustomerById(0L));
+    }
+
+    @Test
+    public void getCustomerById() throws Exception {
+        Customer customer = new Customer("tuc", "email@email.com");
+        customer.setId(0L);
+
+        customerManager.createCustomer(customer);
+
+        assertEquals("customer should exist", customer, customerManager.getCustomerById(0L));
+        assertSame("customer should exist", customer, customerManager.getCustomerById(0L));
+    }
+
+    @Test
+    public void getNonExistingCustomerById() throws Exception {
+        try {
+            customerManager.getCustomerById(0L);
+        } catch (IllegalArgumentException ex) {
+            fail("customer with that id does not exist" + ex);
+        }
     }
 
     @Test
@@ -130,22 +156,110 @@ public class CustomerManagerImplTest {
 
         customerManager.createCustomer(customer);
         customerManager.createCustomer(customer1);
-        
+
+        assertNotEquals("customer and customer1 are not the same", customerManager.getCustomerById(1L), customerManager.getCustomerById(2L));
+
+        try {
+            customer1.setId(1L);
+            customerManager.updateCustomer(customer1);
+        } catch (IllegalArgumentException ex) {
+            fail("customer1 should not be updated" + ex);
+        }
+
+        try {
+            customer1.setFullName("neviem");
+            customerManager.updateCustomer(customer1);
+        } catch (IllegalArgumentException ex) {
+            fail("customer1 should not be updated" + ex);
+        }
+
+        try {
+            customer1.setEmail("email@email.com");
+            customerManager.updateCustomer(customer1);
+        } catch (IllegalArgumentException ex) {
+            fail("customer1 should not be updated" + ex);
+        }
+
+    }
+
+    @Test
+    public void updateNullCustomer() throws Exception {
+        try {
+            customerManager.updateCustomer(null);
+        } catch (IllegalArgumentException ex) {
+            fail("updating null customer" + ex);
+        }
+
+    }
+
+    @Test
+    public void deleteOnlyCustomer() throws Exception {
+        Customer customer = new Customer("full name", "email@email.com");
+        customer.setId(0L);
+
+        customerManager.createCustomer(customer);
+        assertNotNull("customer should exist", customerManager.getCustomerById(0L));
+
+        customerManager.deleteCustomer(0L);
+
+        try {
+            customerManager.getCustomerById(0L);
+        } catch (IllegalArgumentException ex) {
+            fail("customer with that id does not exist");
+        }
     }
 
     @Test
     public void deleteCustomer() throws Exception {
+        Customer customer = new Customer("name", "mail@mail.com");
+        Customer customer1 = new Customer("another name", "email@email.com");
+        customer.setId(0L);
+        customer1.setId(1L);
 
+        customerManager.createCustomer(customer);
+        customerManager.createCustomer(customer1);
+
+        assertEquals("customer should exist", customer, customerManager.getCustomerById(0L));
+        assertEquals("customer1 should exist", customer1, customerManager.getCustomerById(1L));
+        assertNotEquals("customer is not the same as customer1", customerManager.getCustomerById(0L), customerManager.getCustomerById(1L));
+
+        customerManager.deleteCustomer(0L);
+
+        try {
+            customerManager.getCustomerById(0L);
+        } catch (IllegalArgumentException ex) {
+            fail("customer with that id does not exist");
+        }
+
+        assertNotNull(customerManager);
+        assertEquals("customer1 should exist", customer1, customerManager.getCustomerById(1L));
+        assertSame("customer1 should exist", customer1, customerManager.getCustomerById(1L));
     }
 
     @Test
     public void listAllCustomers() throws Exception {
+        Customer customer = new Customer("name", "email@email.com");
+        customerManager.createCustomer(customer);
 
-    }
+        assertThat("customer should be in the set", customerManager.listAllCustomers(), hasItem(customer));
 
-    @Test
-    public void getCustomerById() throws Exception {
+        Customer customer1 = new Customer("full name", "mail@mail.com");
+        customerManager.createCustomer(customer1);
 
+        assertEquals("set has different size", 2, customerManager.listAllCustomers().size());
+        assertThat("set should have both customers", customerManager.listAllCustomers(), hasItems(customer,customer1));
+
+        customer.setId(0L);
+        Customer customer2 = new Customer("name", "email@email.com");
+        customer2.setId(0L);
+
+        try {
+            customerManager.createCustomer(customer2);
+        } catch (IllegalArgumentException ex) {
+            fail("customer2 should not be created");
+        }
+
+        assertThat("set should have just 2 customers", customerManager.listAllCustomers(), hasItems(customer, customer1));
     }
 
 }
