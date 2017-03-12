@@ -26,13 +26,9 @@ public class CustomerManagerImplTest {
 
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void createNullCustomer() throws Exception {
-        try {
-            customerManager.createCustomer(null);
-        } catch (IllegalArgumentException ex) {
-            fail("customer should not be created" + ex);
-        }
+        customerManager.createCustomer(null);
     }
 
     @Test
@@ -113,13 +109,9 @@ public class CustomerManagerImplTest {
         assertSame("customer should exist", customer, customerManager.getCustomerById(0L));
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void getNonExistingCustomerById() throws Exception {
-        try {
-            customerManager.getCustomerById(0L);
-        } catch (IllegalArgumentException ex) {
-            fail("customer with that id does not exist" + ex);
-        }
+        customerManager.getCustomerById(0L);
     }
 
     @Test
@@ -182,12 +174,21 @@ public class CustomerManagerImplTest {
 
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void updateNullCustomer() throws Exception {
+        customerManager.updateCustomer(null);
+
+    }
+
+    @Test
+    public void updateNonExistingCustomer() throws Exception {
+        Customer customer = new Customer("fullName", "email@email.com");
+        customer.setId(2L);
+
         try {
-            customerManager.updateCustomer(null);
+            customerManager.updateCustomer(customer);
         } catch (IllegalArgumentException ex) {
-            fail("updating null customer" + ex);
+            fail("updating non-existing customer" + ex);
         }
 
     }
