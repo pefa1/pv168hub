@@ -2,7 +2,7 @@ package cz.muni.fi.CustomerManager;
 
 import cz.muni.fi.Customer;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * Created by Marek Pfliegler on 8.3.2017.
@@ -10,13 +10,13 @@ import java.util.Set;
 public interface CustomerManager {
 
 
-    public void createCustomer(Customer customer);
+    public Customer createCustomer(Customer customer);
 
     public void updateCustomer(Customer customer);
 
     public void deleteCustomer(long id);
 
-    public Set<Customer> listAllCustomers();
+    public List<Customer> listAllCustomers();
 
     public Customer getCustomerById(long id);
 

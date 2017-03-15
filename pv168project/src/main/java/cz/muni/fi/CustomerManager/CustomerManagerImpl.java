@@ -2,6 +2,7 @@ package cz.muni.fi.CustomerManager;
 
 import cz.muni.fi.Customer;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -12,8 +13,8 @@ public class CustomerManagerImpl implements CustomerManager{
     }
 
     @Override
-    public void createCustomer(Customer customer) {
-
+    public Customer createCustomer(Customer customer) {
+        return null;
     }
 
     @Override
@@ -27,7 +28,7 @@ public class CustomerManagerImpl implements CustomerManager{
     }
 
     @Override
-    public Set<Customer> listAllCustomers() {
+    public List<Customer> listAllCustomers() {
         return null;
     }
 

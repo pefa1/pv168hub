@@ -16,10 +16,6 @@ public class Customer {
         this.email = email;
     }
 
-    public Customer() {
-        super();
-    }
-
     public long getId() {
         return id;
     }
