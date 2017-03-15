@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
+//import static org.assertj.core.api.Assertions.*;
 
 /**
  * Created by Marek Pfliegler on 8.1.2017.
@@ -87,11 +88,10 @@ public class CustomerManagerImplTest {
     @Test
     public void createCustomer() throws Exception {
         Customer customer = new Customer("bam", "email@email.com");
-        assertNotNull("customer is null", customer);
 
         customer.setId(0L);
         customerManager.createCustomer(customer);
-        assertEquals("customer has not 0L id",0L, customerManager.getCustomerById(0L).getId());
+        assertNotNull("customer is null", customerManager.getCustomerById(0L));
 
         Customer customer1 = new Customer();
         customer1.setId(1L);
