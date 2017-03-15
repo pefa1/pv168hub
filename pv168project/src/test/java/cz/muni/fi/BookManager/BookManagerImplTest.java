@@ -27,45 +27,31 @@ public class BookManagerImplTest {
 
     @Test
     public void createBookCorrectInput(){
-        Book book = new Book(1L, "Já", "nevim");
+        Book book = new Book("Ja", "nevim");
         Book result = bookManager.createBook(book);
         assertNotNull( "createBook returns null", result);
-        assertEquals("Id should be 1", result.getId(), 1L);
         assertEquals("Incorrect title", result.getTitle(), "nevim");
-        assertEquals("Incorrect author", result.getAuthor(), "Já");
+        assertEquals("Incorrect author", result.getAuthor(), "Ja");
 
         Book resultFromDb = bookManager.getBookById(result.getId());
         assertEquals("Could not get the book", resultFromDb, result);
-        assertNotSame("Result should not be same", resultFromDb, result);
     }
+
     @Test(expected = IllegalArgumentException.class)
     public void createBookNullInput() throws Exception {
         bookManager.createBook(null);
     }
 
-    @Test (expected = IllegalArgumentException.class)
-    public void createBookWrongId() throws Exception {
-        Book book = new Book(-1L, "Já", "nevim");
-        bookManager.createBook(book);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createBookIdExists() throws Exception {
-        Book book = new Book(2L, "Já", "nevim");
-        bookManager.createBook(book);
-        bookManager.createBook(book);
-    }
-
-
     @Test
-        public void getBookById() throws Exception {
-        Book book = new Book(4L, "Já", "nevim");
-        bookManager.createBook(book);
-        Book resultFromDb = bookManager.getBookById(book.getId());
+    public void getBookById() throws Exception {
+        Book book = new Book("Ja", "nevim");
+        Book result = bookManager.createBook(book);
+        Book resultFromDb = bookManager.getBookById(result.getId());
+        assertNotNull( "createBook returns null", result);
         assertNotNull( "returns null", resultFromDb);
 
-        assertEquals("Could not get the book", resultFromDb, book);
-        assertNotSame("Result should not be same", resultFromDb, book);
+        assertEquals("Could not get the book", resultFromDb, result);
+        assertNotSame("Result should not be same", resultFromDb, result);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -80,7 +66,7 @@ public class BookManagerImplTest {
 
     @Test
     public void updateBookCorrectInput() throws Exception {
-        Book book = new Book(3L, "Já", "nevim");
+        Book book = new Book("Ja", "nevim");
         book.setAuthor("Ty");
         bookManager.updateBook(book);
         book = bookManager.getBookById(book.getId());
@@ -98,7 +84,7 @@ public class BookManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateBookDoesNotExist() throws Exception {
-        Book book = new Book(10L, "Já", "nevim");
+        Book book = new Book("Ja", "nevim");
         bookManager.updateBook(book);
     }
 
@@ -109,10 +95,10 @@ public class BookManagerImplTest {
 
     @Test
     public void deleteBook() throws Exception {
-        Book book = new Book(5L, "Já", "nevim");
-        bookManager.createBook(book);
-        bookManager.deleteBook(book.getId());
-        assertNull("Book should not exist", bookManager.getBookById(book.getId()));
+        Book book = new Book("Ja", "nevim");
+        Book result = bookManager.createBook(book);
+        bookManager.deleteBook(result.getId());
+        assertNull("Book should not exist", bookManager.getBookById(result.getId()));
     }
 
     @Test(expected = IllegalArgumentException.class)
