@@ -5,6 +5,7 @@ import cz.muni.fi.Customer;
 
 /**
  * Created by Marek Pfliegler on 15.3.2017.
+ * builder for a default customer
  */
 public class CustomerBuilder {
 

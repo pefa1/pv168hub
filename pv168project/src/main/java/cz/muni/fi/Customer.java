@@ -4,6 +4,7 @@ import java.util.Date;
 
 /**
  * Created by Marek Pfliegler on 8.3.2017.
+ * default class for a customer
  */
 public class Customer {
 

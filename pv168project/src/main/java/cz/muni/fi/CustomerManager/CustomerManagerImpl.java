@@ -7,6 +7,7 @@ import java.util.Set;
 
 /**
  * Created by Marek Pfliegler on 8.3.2017.
+ * implementation of CustomerManager interface
  */
 public class CustomerManagerImpl implements CustomerManager{
     public CustomerManagerImpl() {
