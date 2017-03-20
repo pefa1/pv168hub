@@ -35,8 +35,8 @@ public class CustomerManagerImplTest {
     private CustomerBuilder sampleCustomer1() {
         return new CustomerBuilder()
                 .id(0L) //then change to null, it will automatically change in createCustomer method
-                .email("mail@mail.com")
-                .fullName("full name");
+                .email("mail@mail.com") //then change to null, it will automatically change in createCustomer method
+                .fullName("full name"); //then change to null, it will automatically change in createCustomer method
     }
 
     /**
@@ -46,19 +46,8 @@ public class CustomerManagerImplTest {
     private CustomerBuilder sampleCustomer2() {
         return new CustomerBuilder()
                 .id(1L) //then change to null, it will automatically change in createCustomer method
-                .email("email@email.com")
-                .fullName("name");
-    }
-
-    /**
-     * builder for a customer with different default id and name, but email is same as sampleCustomer1
-     * @return customer
-     */
-    private CustomerBuilder sampleCustomerEmail() {
-        return new CustomerBuilder()
-                .id(2L)
-                .email("mail@mail.com")
-                .fullName("name");
+                .email("email@email.com") //then change to null, it will automatically change in createCustomer method
+                .fullName("name"); //then change to null, it will automatically change in createCustomer method
     }
 
     /**
@@ -77,7 +66,7 @@ public class CustomerManagerImplTest {
     @Test
     public void createSameEmailCustomer() throws Exception {
         Customer customer = sampleCustomer1().build();
-        Customer customer1 = sampleCustomerEmail().build();
+        Customer customer1 = sampleCustomer2().email("mail@mail.com").build();
 
         assertThat(customer.getId()).isNotEqualTo(customer1.getId());
 
@@ -102,6 +91,19 @@ public class CustomerManagerImplTest {
 
         Customer resultGBI = customerManager.getCustomerById(result.getId());
         assertThat(result).isEqualToComparingFieldByField(resultGBI);
+    }
+
+    @Test
+    public void createSameIdCustomer() throws Exception {
+        Customer customer1 = sampleCustomer1().build();
+        Customer customer2 = sampleCustomer2().id(0L).build();
+
+        customerManager.createCustomer(customer1);
+        try {
+            customerManager.createCustomer(customer2);
+        } catch (IllegalArgumentException ex) {
+            Assertions.fail("customers have same id" + ex);
+        }
     }
 
     /**
@@ -222,6 +224,11 @@ public class CustomerManagerImplTest {
         assertThat(customerManager).isNotNull();
         assertThat(customer1).isEqualToComparingFieldByField(customerManager.getCustomerById(result1.getId()));
 
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void deleteCustomerByWrongId() throws Exception {
+        customerManager.deleteCustomer(-1L);
     }
 
     /**
