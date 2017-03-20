@@ -6,18 +6,36 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import java.time.*;
+import javax.sql.DataSource;
+import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
 
 /**
  * Created by xkosta on 8.3.17.
  */
 public class BookManagerImplTest {
 
-    BookManager bookManager;
+    BookManagerImpl bookManager;
+    private javax.sql.DataSource ds;
+
+    private static DataSource prepareDataSource() throws SQLException {
+        EmbeddedDataSource ds = new EmbeddedDataSource();
+        // we will use in memory database
+        ds.setDatabaseName("memory:bookmgr-test");
+        // database is created automatically if it does not exist yet
+        ds.setCreateDatabase("create");
+        return ds;
+    }
 
     @Before
     public void setUp() throws Exception {
         bookManager = new BookManagerImpl();
+        ds = prepareDataSource();
+        bookManager.setDataSource(ds);
+
     }
 
     @After
@@ -25,16 +43,29 @@ public class BookManagerImplTest {
 
     }
 
+
+    private BookBuilder sampleBookBuilder() {
+        return new BookBuilder()
+                .author("Joe")
+                .title("nevim");
+    }
+
+    private BookBuilder sample2BookBuilder() {
+        return new BookBuilder()
+                .author("James")
+                .title("title");
+    }
+
     @Test
     public void createBookCorrectInput(){
-        Book book = new Book("Ja", "nevim");
-        Book result = bookManager.createBook(book);
-        assertNotNull( "createBook returns null", result);
-        assertEquals("Incorrect title", result.getTitle(), "nevim");
-        assertEquals("Incorrect author", result.getAuthor(), "Ja");
+        Book book = sampleBookBuilder().build();
+        bookManager.createBook(book);
 
-        Book resultFromDb = bookManager.getBookById(result.getId());
-        assertEquals("Could not get the book", resultFromDb, result);
+        long bookId = book.getId();
+        assertNotEquals("Book id is 0", bookId, 0L);
+        Book result = bookManager.createBook(book);
+
+        assertEquals("Book should be equal", bookManager.getBookById(bookId), book);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -44,14 +75,16 @@ public class BookManagerImplTest {
 
     @Test
     public void getBookById() throws Exception {
-        Book book = new Book("Ja", "nevim");
-        Book result = bookManager.createBook(book);
-        Book resultFromDb = bookManager.getBookById(result.getId());
-        assertNotNull( "createBook returns null", result);
-        assertNotNull( "returns null", resultFromDb);
 
-        assertEquals("Could not get the book", resultFromDb, result);
-        assertNotSame("Result should not be same", resultFromDb, result);
+        Book anotherBook = sample2BookBuilder().build();
+        Book book = sampleBookBuilder().build();
+
+        bookManager.createBook(book);
+        bookManager.createBook(anotherBook);
+
+        assertNotNull( "getBookById returns null", bookManager.getBookById(book.getId()));
+
+        assertEquals("Could not get the book", bookManager.getBookById(book.getId()), book);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -66,25 +99,22 @@ public class BookManagerImplTest {
 
     @Test
     public void updateBookCorrectInput() throws Exception {
-        Book book = new Book("Ja", "nevim");
-        book.setAuthor("Ty");
-        bookManager.updateBook(book);
-        book = bookManager.getBookById(book.getId());
-        assertNotNull( "returns null", book);
+        Book book1 = sampleBookBuilder().build();
+        Book book2 = sample2BookBuilder().build();
 
-        assertEquals("Author did not change", book.getAuthor(), "Ty");
-        assertNotEquals("Id changed", book.getId(), 3L);
-        assertNotEquals("Title changed", book.getTitle(), "nevim");
+        bookManager.createBook(book1);
+        bookManager.createBook(book2);
 
-        book.setTitle("nevim2");
-        bookManager.updateBook(book);
-        assertEquals("Title did not change", book.getTitle(), "nevim2");
-        assertEquals("Author changed", book.getAuthor(), "Ty");
+        book1.setAuthor("Ty");
+        bookManager.updateBook(book1);
+
+        assertEquals("Author did not change", book1, bookManager.getBookById(book1.getId()));
+        assertEquals("Author of not changed book changed", book2, bookManager.getBookById(book2.getId()));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void updateBookDoesNotExist() throws Exception {
-        Book book = new Book("Ja", "nevim");
+        Book book = sampleBookBuilder().build();
         bookManager.updateBook(book);
     }
 
@@ -95,10 +125,14 @@ public class BookManagerImplTest {
 
     @Test
     public void deleteBook() throws Exception {
-        Book book = new Book("Ja", "nevim");
-        Book result = bookManager.createBook(book);
-        bookManager.deleteBook(result.getId());
-        assertNull("Book should not exist", bookManager.getBookById(result.getId()));
+        Book book = sampleBookBuilder().build();
+
+        bookManager.createBook(book);
+        assertEquals("Book is not created", bookManager.getBookById(book.getId()), book);
+
+        bookManager.deleteBook(book.getId());
+
+        assertNull("Book should not exist", bookManager.getBookById(book.getId()));
     }
 
     @Test(expected = IllegalArgumentException.class)
