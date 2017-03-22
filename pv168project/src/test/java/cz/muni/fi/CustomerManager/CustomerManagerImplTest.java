@@ -231,7 +231,7 @@ public class CustomerManagerImplTest {
      */
     @Test
     public void listAllCustomers() throws Exception {
-        assertThat(customerManager.listAllCustomers()).isEmpty();
+        assertThat(customerManager.listAllCustomers()).isNullOrEmpty();
 
         Customer customer = sampleCustomer1().build();
         customerManager.createCustomer(customer);

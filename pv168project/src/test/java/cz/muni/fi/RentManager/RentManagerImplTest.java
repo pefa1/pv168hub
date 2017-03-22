@@ -99,6 +99,32 @@ public class RentManagerImplTest {
     }
 
     @Test
+    public void createRentWithSameId() throws Exception {
+        Rent rent = sampleRent().build();
+        Rent rent1 = sampleRent2().id(0L).build();
+
+        rentManager.createRent(rent);
+        try {
+            rentManager.createRent(rent1);
+        } catch (IllegalArgumentException ex) {
+            Assertions.fail("rent with that id already exists" + ex);
+        }
+    }
+
+    @Test
+    public void createRentWithSameBook() throws Exception {
+        Rent rent = sampleRent().build();
+        Rent rent1 = sampleRent2().book(sample2BookBuilder().id(0L).build()).build();
+
+        rentManager.createRent(rent);
+        try {
+            rentManager.createRent(rent1);
+        } catch (IllegalArgumentException ex) {
+            Assertions.fail("rent with that book already exists" + ex);
+        }
+    }
+
+    @Test
     public void createRent() throws Exception {
         Rent rent = sampleRent().build();
 
@@ -111,38 +137,153 @@ public class RentManagerImplTest {
 
     @Test
     public void getRentById() throws Exception {
+        Rent rent = sampleRent().build();
+        Rent result = rentManager.createRent(rent);
 
+        assertThat(rentManager.getRentById(result.getId())).isNotNull();
+        assertThat(rentManager.getRentById(result.getId())).isEqualToComparingFieldByField(result);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getRentByWrongId() throws Exception {
+        rentManager.getRentById(-1L);
     }
 
     @Test
     public void updateRent() throws Exception {
         Rent rent = sampleRent().build();
-        rentManager.createRent(rent);
+        Rent result = rentManager.createRent(rent);
 
         rent.setExpectedReturnTime(LocalDate.of(2017, Month.MAY, 22));
         rentManager.updateRent(rent);
 
-        
+        assertThat(rentManager.getRentById(result.getId())).isEqualToComparingFieldByField(rent);
+        assertThat(rentManager.getRentById(result.getId()).getExpectedReturnTime()).isAfterOrEqualTo(rentManager.getRentById(result.getId()).getExpectedReturnTime());
+
+        rent.setReturnTime(LocalDate.of(2017, Month.MAY, 5));
+        rentManager.updateRent(rent);
+
+        assertThat(rentManager.getRentById(result.getId())).isEqualToComparingFieldByField(rent);
+        assertThat(rentManager.getRentById(result.getId()).getReturnTime()).isBeforeOrEqualTo(rentManager.getRentById(result.getId()).getExpectedReturnTime());
+
+        rent.setReturnTime(LocalDate.of(2017, Month.MAY, 28));
+        rentManager.updateRent(rent);
+
+        assertThat(rentManager.getRentById(result.getId())).isEqualToComparingFieldByField(rent);
+        assertThat(rentManager.getRentById(result.getId()).getReturnTime()).isAfterOrEqualTo(rentManager.getRentById(result.getId()).getExpectedReturnTime());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void updateNullRent() throws Exception {
+        rentManager.updateRent(null);
+    }
+
+    @Test
+    public void updateRentOnExisting() throws Exception {
+        Rent rent = sampleRent().build();
+        Rent rent1 = sampleRent2().build();
+
+        rentManager.createRent(rent);
+        rentManager.createRent(rent1);
+
+        try {
+            rent1.setBook(sampleBookBuilder().id(0L).build());
+            rentManager.updateRent(rent1);
+        } catch (IllegalArgumentException ex) {
+            Assertions.fail("book is already borrowed" + ex);
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void deleteNonExistingRent() throws Exception {
+        rentManager.deleteRent(-1L);
+    }
+
+    @Test
+    public void deleteOnlyRent() throws Exception {
+        Rent rent = sampleRent().build();
+        Rent result = rentManager.createRent(rent);
+
+        rentManager.deleteRent(result.getId());
+
+        try {
+            rentManager.getRentById(result.getId());
+        } catch (IllegalArgumentException ex) {
+            Assertions.fail("rent should not exist" + ex);
+        }
     }
 
     @Test
     public void deleteRent() throws Exception {
+        Rent rent = sampleRent().build();
+        Rent rent1 = sampleRent2().build();
 
+        Rent result = rentManager.createRent(rent);
+        Rent result1 = rentManager.createRent(rent1);
+
+        rentManager.deleteRent(result.getId());
+
+        try {
+            rentManager.getRentById(result.getId());
+        } catch (IllegalArgumentException ex) {
+            Assertions.fail("rent should not exist" + ex);
+        }
+
+        assertThat(rentManager.getRentById(result1.getId())).isEqualToComparingFieldByField(result1);
     }
 
     @Test
     public void listAllRents() throws Exception {
+        assertThat(rentManager.listAllRents()).isNullOrEmpty();
 
+        Rent rent = sampleRent().build();
+        rentManager.createRent(rent);
+
+        assertThat(rentManager.listAllRents()).containsOnly(rent);
+        assertThat(rentManager.listAllRents().size()).isEqualTo(1);
+
+        Rent rent1 = sampleRent2().build();
+        rentManager.createRent(rent);
+
+        assertThat(rentManager.listAllRents()).contains(rent, rent1);
+        assertThat(rentManager.listAllRents().size()).isEqualTo(2);
     }
 
     @Test
     public void listRentsByCustomer() throws Exception {
+        assertThat(rentManager.listAllRents()).isNullOrEmpty();
 
+        Rent rent = sampleRent().build();
+        Rent result = rentManager.createRent(rent);
+
+        assertThat(rentManager.listRentsByCustomer(result.getCustomer().getId()).size()).isEqualTo(1);
+        assertThat(rentManager.listRentsByCustomer(result.getCustomer().getId())).contains(rent);
+
+        Rent rent1 = sampleRent2().customer(sampleCustomer1().build()).build();
+        Rent result1 = rentManager.createRent(rent1);
+
+        assertThat(rentManager.listRentsByCustomer(result1.getCustomer().getId()).size()).isEqualTo(2);
+        assertThat(rentManager.listRentsByCustomer(result1.getCustomer().getId())).contains(rent, rent1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void listRentsByWrongIdCustomer() throws Exception {
+        rentManager.listRentsByCustomer(-1L);
     }
 
     @Test
     public void listRentsByBook() throws Exception {
+        assertThat(rentManager.listAllRents()).isNullOrEmpty();
 
+        Rent rent = sampleRent().build();
+        Rent result = rentManager.createRent(rent);
+
+        assertThat(rentManager.listRentsByBook(result.getBook().getId())).contains(rent);
+        assertThat(rentManager.listRentsByBook(result.getBook().getId()).size()).isEqualTo(1);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void listRentsByWrongIdBook() throws Exception {
+        rentManager.listRentsByBook(-1L);
+    }
 }
