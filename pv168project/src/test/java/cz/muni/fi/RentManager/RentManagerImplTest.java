@@ -7,6 +7,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.sql.DataSource;
 import java.time.Month;
 import java.time.LocalDate;
 
@@ -18,6 +20,8 @@ import static org.assertj.core.api.Assertions.*;
 public class RentManagerImplTest {
 
     private RentManager rentManager;
+    private DataSource ds;
+    private final static LocalDate NOW = LocalDate.of(2016, Month.FEBRUARY, 29);
 
     @Before
     public void setUp() throws Exception {
