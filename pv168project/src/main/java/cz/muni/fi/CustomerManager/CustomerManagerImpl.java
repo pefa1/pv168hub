@@ -14,8 +14,9 @@ public class CustomerManagerImpl implements CustomerManager{
 
     private DataSource dataSource;
 
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
+    @Override
+    public void setDataSource(DataSource ds) {
+        this.dataSource = ds;
     }
 
     private void checkDataSource() {

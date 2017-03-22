@@ -1,17 +1,18 @@
 package cz.muni.fi.CustomerManager;
 
 import cz.muni.fi.Customer;
-import javax.sql.DataSource;
 import java.sql.SQLException;
+import cz.muni.fi.DBUtils;
 
-import org.apache.commons.dbutils.DbUtils;
-import java.sql.SQLException;
+
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+
+import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -35,7 +36,7 @@ public class CustomerManagerImplTest {
     @Before
     public void setUp() throws Exception {
         ds = prepareDataSource();
-        //DbUtils.executeSqlScript(ds,CustomerManager.class.getResource("createTables.sql"));
+        DBUtils.executeSqlScript(ds,CustomerManager.class.getResource("createTables.sql"));
         customerManager = new CustomerManagerImpl(); // medzi testami ostava iba to co je tu, pred kazdym testom sa spusti setup
         customerManager.setDataSource(ds);
     }
