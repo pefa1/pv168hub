@@ -26,6 +26,11 @@ public class RentManagerImpl implements RentManager {
     }
 
     @Override
+    public Rent getRentById(long id) {
+        return null;
+    }
+
+    @Override
     public List<Rent> listAllRents() {
         return null;
     }

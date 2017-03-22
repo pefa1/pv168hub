@@ -15,6 +15,8 @@ public interface RentManager {
 
     public void deleteRent(long id);
 
+    public Rent getRentById(long id);
+
     public List<Rent> listAllRents();
 
     public List<Rent> listRentsByCustomer(long customer_id);

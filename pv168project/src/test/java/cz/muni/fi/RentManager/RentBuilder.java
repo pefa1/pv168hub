@@ -4,7 +4,7 @@ import cz.muni.fi.Book;
 import cz.muni.fi.Customer;
 import cz.muni.fi.Rent;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * Created by Marek Pfliegler on 22.3.2017.
@@ -14,9 +14,9 @@ public class RentBuilder {
     private long id;
     private Customer customer;
     private Book book;
-    private Date rentTime;
-    private Date expectedReturnTime;
-    private Date returnTime;
+    private LocalDate rentTime;
+    private LocalDate expectedReturnTime;
+    private LocalDate returnTime;
 
     public RentBuilder id(long id) {
         this.id = id;
@@ -33,17 +33,17 @@ public class RentBuilder {
         return this;
     }
 
-    public RentBuilder rentTime(Date rentTime) {
+    public RentBuilder rentTime(LocalDate rentTime) {
         this.rentTime = rentTime;
         return this;
     }
 
-    public RentBuilder expectedReturnTime(Date expectedReturnTime) {
+    public RentBuilder expectedReturnTime(LocalDate expectedReturnTime) {
         this.expectedReturnTime = expectedReturnTime;
         return this;
     }
 
-    public RentBuilder returnTime(Date returnTime) {
+    public RentBuilder returnTime(LocalDate returnTime) {
         this.returnTime = returnTime;
         return this;
     }

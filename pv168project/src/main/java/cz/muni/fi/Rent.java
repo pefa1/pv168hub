@@ -1,6 +1,6 @@
 package cz.muni.fi;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * Created by Marek Pfliegler on 8.3.2017.
@@ -9,9 +9,9 @@ public class Rent {
     private long id;
     private Customer customer;
     private Book book;
-    private Date rentTime;
-    private Date expectedReturnTime;
-    private Date returnTime;
+    private LocalDate rentTime;
+    private LocalDate expectedReturnTime;
+    private LocalDate returnTime;
 
     public long getId() {
         return id;
@@ -37,27 +37,27 @@ public class Rent {
         this.book = book;
     }
 
-    public Date getRentTime() {
+    public LocalDate getRentTime() {
         return rentTime;
     }
 
-    public void setRentTime(Date rentTime) {
+    public void setRentTime(LocalDate rentTime) {
         this.rentTime = rentTime;
     }
 
-    public Date getExpectedReturnTime() {
+    public LocalDate getExpectedReturnTime() {
         return expectedReturnTime;
     }
 
-    public void setExpectedReturnTime(Date expectedReturnTime) {
+    public void setExpectedReturnTime(LocalDate expectedReturnTime) {
         this.expectedReturnTime = expectedReturnTime;
     }
 
-    public Date getReturnTime() {
+    public LocalDate getReturnTime() {
         return returnTime;
     }
 
-    public void setReturnTime(Date returnTime) {
+    public void setReturnTime(LocalDate returnTime) {
         this.returnTime = returnTime;
     }
 
