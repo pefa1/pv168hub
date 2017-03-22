@@ -6,23 +6,14 @@ import java.util.Date;
  * Created by Marek Pfliegler on 8.3.2017.
  */
 public class Rent {
-    private int id;
+    private long id;
     private Customer customer;
     private Book book;
     private Date rentTime;
     private Date expectedReturnTime;
     private Date returnTime;
 
-    public Rent(int id, Customer customer, Book book, Date rentTime, Date expectedReturnTime, Date returnTime) {
-        this.id = id;
-        this.customer = customer;
-        this.book = book;
-        this.rentTime = rentTime;
-        this.expectedReturnTime = expectedReturnTime;
-        this.returnTime = returnTime;
-    }
-
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -88,7 +79,7 @@ public class Rent {
 
     @Override
     public int hashCode() {
-        int result = id;
+        int result = (int) (id ^ (id >>> 32));
         result = 31 * result + (customer != null ? customer.hashCode() : 0);
         result = 31 * result + (book != null ? book.hashCode() : 0);
         result = 31 * result + (rentTime != null ? rentTime.hashCode() : 0);

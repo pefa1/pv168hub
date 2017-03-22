@@ -1,20 +1,21 @@
 package cz.muni.fi.RentManager;
 
+import cz.muni.fi.Rent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Created by Marek Pfliegler on 22.3.2017.
  */
 public class RentManagerImplTest {
-    
 
+    private RentManager rentManager;
     @Before
     public void setUp() throws Exception {
-
+        rentManager = new RentManagerImpl();
     }
 
     @After
@@ -24,7 +25,7 @@ public class RentManagerImplTest {
 
     @Test
     public void createRent() throws Exception {
-
+        Rent rent;
     }
 
     @Test
