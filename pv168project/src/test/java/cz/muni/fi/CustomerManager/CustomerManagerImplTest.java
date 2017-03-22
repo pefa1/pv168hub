@@ -3,8 +3,8 @@ package cz.muni.fi.CustomerManager;
 import cz.muni.fi.Customer;
 import java.sql.SQLException;
 import cz.muni.fi.DBUtils;
-
-
+import static org.mockito.Mockito.*;
+import cz.muni.fi.ServiceFailureException;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -43,7 +43,7 @@ public class CustomerManagerImplTest {
 
     @After
     public void tearDown() throws Exception {
-
+        DBUtils.executeSqlScript(ds,CustomerManager.class.getResource("dropTables.sql"));
     }
 
     /**
@@ -263,4 +263,73 @@ public class CustomerManagerImplTest {
         assertThat(customerManager.listAllCustomers()).usingFieldByFieldElementComparator().containsOnly(customer, customer1);
     }
 
+    @Test
+    public void createBodyWithSqlExceptionThrown() throws SQLException {
+        // Create sqlException, which will be thrown by our DataSource mock
+        // object to simulate DB operation failure
+        SQLException sqlException = new SQLException();
+        // Create DataSource mock object
+        DataSource failingDataSource = mock(DataSource.class);
+        // Instruct our DataSource mock object to throw our sqlException when
+        // DataSource.getConnection() method is called.
+        when(failingDataSource.getConnection()).thenThrow(sqlException);
+        // Configure our manager to use DataSource mock object
+        customerManager.setDataSource(failingDataSource);
+
+        // Create Body instance for our test
+        Customer customer = sampleCustomer1().build();
+
+        // Try to call Manager.createBody(Body) method and expect that exception
+        // will be thrown
+        assertThatThrownBy(() -> customerManager.createCustomer(customer))
+                // Check that thrown exception is ServiceFailureException
+                .isInstanceOf(ServiceFailureException.class)
+                // Check if cause is properly set
+                .hasCause(sqlException);
+    }
+
+    // Now we want to test also other methods of BodyManager. To avoid having
+    // couple of method with lots of duplicit code, we will use the similar
+    // approach as with testUpdateBody(Operation) method.
+
+    @FunctionalInterface
+    private interface Operation<T> {
+        void callOn(T subjectOfOperation);
+    }
+
+    private void testExpectedServiceFailureException(Operation<CustomerManager> operation) throws SQLException {
+        SQLException sqlException = new SQLException();
+        DataSource failingDataSource = mock(DataSource.class);
+        when(failingDataSource.getConnection()).thenThrow(sqlException);
+        customerManager.setDataSource(failingDataSource);
+        assertThatThrownBy(() -> operation.callOn(customerManager))
+                .isInstanceOf(ServiceFailureException.class)
+                .hasCause(sqlException);
+    }
+
+    @Test
+    public void updateBodyWithSqlExceptionThrown() throws SQLException {
+        Customer customer = sampleCustomer1().build();
+        customerManager.createCustomer(customer);
+        testExpectedServiceFailureException((customerManager) -> customerManager.updateCustomer(customer));
+    }
+
+    @Test
+    public void getBodyWithSqlExceptionThrown() throws SQLException {
+        Customer customer = sampleCustomer1().build();
+        customerManager.createCustomer(customer);
+        testExpectedServiceFailureException((customerManager) -> customerManager.getCustomerById(customer.getId()));
+    }
+
+    @Test
+    public void deleteBodyWithSqlExceptionThrown() throws SQLException {
+        Customer customer = sampleCustomer1().build();
+        customerManager.createCustomer(customer);
+        testExpectedServiceFailureException((bodyManager) -> bodyManager.deleteCustomer(customer.getId()));
+    }
+
+    @Test
+    public void findAllBodiesWithSqlExceptionThrown() throws SQLException {
+        testExpectedServiceFailureException(CustomerManager::listAllCustomers);
+    }
 }
