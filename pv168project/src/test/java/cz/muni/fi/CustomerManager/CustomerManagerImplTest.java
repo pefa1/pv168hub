@@ -215,12 +215,6 @@ public class CustomerManagerImplTest {
 
         customerManager.deleteCustomer(result.getId());
 
-        try {
-            customerManager.getCustomerById(result.getId());
-        } catch (IllegalArgumentException ex) {
-            Assertions.fail("customer should no longer exist" + ex);
-        }
-
         assertThat(customerManager).isNotNull();
         assertThat(customer1).isEqualToComparingFieldByField(customerManager.getCustomerById(result1.getId()));
 
