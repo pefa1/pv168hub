@@ -56,5 +56,6 @@ public class RentBuilder {
         rent.setRentTime(rentTime);
         rent.setExpectedReturnTime(expectedReturnTime);
         rent.setReturnTime(returnTime);
+        return rent;
     }
 }
