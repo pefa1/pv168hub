@@ -239,13 +239,13 @@ public class RentManagerImplTest {
         Rent rent = sampleRent().build();
         rentManager.createRent(rent);
 
-        assertThat(rentManager.listAllRents()).containsOnly(rent);
+        assertThat(rentManager.listAllRents()).usingFieldByFieldElementComparator().contains(rent);
         assertThat(rentManager.listAllRents().size()).isEqualTo(1);
 
         Rent rent1 = sampleRent2().build();
         rentManager.createRent(rent);
 
-        assertThat(rentManager.listAllRents()).contains(rent, rent1);
+        assertThat(rentManager.listAllRents()).usingFieldByFieldElementComparator().contains(rent, rent1);
         assertThat(rentManager.listAllRents().size()).isEqualTo(2);
     }
 
@@ -257,13 +257,13 @@ public class RentManagerImplTest {
         Rent result = rentManager.createRent(rent);
 
         assertThat(rentManager.listRentsByCustomer(result.getCustomer().getId()).size()).isEqualTo(1);
-        assertThat(rentManager.listRentsByCustomer(result.getCustomer().getId())).contains(rent);
+        assertThat(rentManager.listRentsByCustomer(result.getCustomer().getId())).usingFieldByFieldElementComparator().contains(rent);
 
         Rent rent1 = sampleRent2().customer(sampleCustomer1().build()).build();
         Rent result1 = rentManager.createRent(rent1);
 
         assertThat(rentManager.listRentsByCustomer(result1.getCustomer().getId()).size()).isEqualTo(2);
-        assertThat(rentManager.listRentsByCustomer(result1.getCustomer().getId())).contains(rent, rent1);
+        assertThat(rentManager.listRentsByCustomer(result1.getCustomer().getId())).usingFieldByFieldElementComparator().contains(rent, rent1);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -278,7 +278,7 @@ public class RentManagerImplTest {
         Rent rent = sampleRent().build();
         Rent result = rentManager.createRent(rent);
 
-        assertThat(rentManager.listRentsByBook(result.getBook().getId())).contains(rent);
+        assertThat(rentManager.listRentsByBook(result.getBook().getId())).usingFieldByFieldElementComparator().contains(rent);
         assertThat(rentManager.listRentsByBook(result.getBook().getId()).size()).isEqualTo(1);
     }
 
