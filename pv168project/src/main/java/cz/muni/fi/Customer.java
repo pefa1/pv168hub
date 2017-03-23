@@ -1,6 +1,7 @@
 package cz.muni.fi;
 
-import java.util.Date;
+import java.util.Objects;
+
 
 /**
  * Created by Marek Pfliegler on 8.3.2017.
@@ -8,15 +9,15 @@ import java.util.Date;
  */
 public class Customer {
 
-    private long id;
+    private Long id;
     private String fullName;
     private String email;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -37,31 +38,31 @@ public class Customer {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Customer customer = (Customer) o;
-
-        if (id != customer.id) return false;
-        if (fullName != null ? !fullName.equals(customer.fullName) : customer.fullName != null) return false;
-        return email != null ? email.equals(customer.email) : customer.email == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + (fullName != null ? fullName.hashCode() : 0);
-        result = 31 * result + (email != null ? email.hashCode() : 0);
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "Customer{" +
                 "id=" + id +
                 ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Customer customer = (Customer) o;
+
+        if (id != null ? !id.equals(customer.id) : customer.id != null) return false;
+        if (fullName != null ? !fullName.equals(customer.fullName) : customer.fullName != null) return false;
+        return email != null ? email.equals(customer.email) : customer.email == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (fullName != null ? fullName.hashCode() : 0);
+        result = 31 * result + (email != null ? email.hashCode() : 0);
+        return result;
     }
 }

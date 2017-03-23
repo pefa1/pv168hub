@@ -2,8 +2,10 @@ package cz.muni.fi.CustomerManager;
 
 import cz.muni.fi.Customer;
 import java.sql.SQLException;
-import cz.muni.fi.DBUtils;
+
 import static org.mockito.Mockito.*;
+
+import cz.muni.fi.DBUtils;
 import cz.muni.fi.ServiceFailureException;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.assertj.core.api.Assertions;
@@ -13,6 +15,7 @@ import org.junit.Test;
 
 
 import javax.sql.DataSource;
+import javax.xml.bind.ValidationException;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -37,8 +40,7 @@ public class CustomerManagerImplTest {
     public void setUp() throws Exception {
         ds = prepareDataSource();
         DBUtils.executeSqlScript(ds,CustomerManager.class.getResource("createTables.sql"));
-        customerManager = new CustomerManagerImpl(); // medzi testami ostava iba to co je tu, pred kazdym testom sa spusti setup
-        customerManager.setDataSource(ds);
+        customerManager = new CustomerManagerImpl(ds); // medzi testami ostava iba to co je tu, pred kazdym testom sa spusti setup
     }
 
     @After
@@ -52,7 +54,7 @@ public class CustomerManagerImplTest {
      */
     private CustomerBuilder sampleCustomer1() {
         return new CustomerBuilder()
-                .id(0L) //then change to null, it will automatically change in createCustomer method
+                .id(null) //then change to null, it will automatically change in createCustomer method
                 .email("mail@mail.com") //then change to null, it will automatically change in createCustomer method
                 .fullName("full name"); //then change to null, it will automatically change in createCustomer method
     }
@@ -63,7 +65,7 @@ public class CustomerManagerImplTest {
      */
     private CustomerBuilder sampleCustomer2() {
         return new CustomerBuilder()
-                .id(1L) //then change to null, it will automatically change in createCustomer method
+                .id(null) //then change to null, it will automatically change in createCustomer method
                 .email("email@email.com") //then change to null, it will automatically change in createCustomer method
                 .fullName("name"); //then change to null, it will automatically change in createCustomer method
     }
@@ -308,21 +310,21 @@ public class CustomerManagerImplTest {
     }
 
     @Test
-    public void updateBodyWithSqlExceptionThrown() throws SQLException {
+    public void updateBodyWithSqlExceptionThrown() throws SQLException, ValidationException {
         Customer customer = sampleCustomer1().build();
         customerManager.createCustomer(customer);
         testExpectedServiceFailureException((customerManager) -> customerManager.updateCustomer(customer));
     }
 
     @Test
-    public void getBodyWithSqlExceptionThrown() throws SQLException {
+    public void getBodyWithSqlExceptionThrown() throws SQLException, ValidationException {
         Customer customer = sampleCustomer1().build();
         customerManager.createCustomer(customer);
         testExpectedServiceFailureException((customerManager) -> customerManager.getCustomerById(customer.getId()));
     }
 
     @Test
-    public void deleteBodyWithSqlExceptionThrown() throws SQLException {
+    public void deleteBodyWithSqlExceptionThrown() throws SQLException, ValidationException {
         Customer customer = sampleCustomer1().build();
         customerManager.createCustomer(customer);
         testExpectedServiceFailureException((bodyManager) -> bodyManager.deleteCustomer(customer.getId()));

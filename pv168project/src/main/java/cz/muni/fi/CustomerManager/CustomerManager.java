@@ -3,6 +3,8 @@ package cz.muni.fi.CustomerManager;
 import cz.muni.fi.Customer;
 
 import javax.sql.DataSource;
+import javax.xml.bind.ValidationException;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -16,7 +18,7 @@ public interface CustomerManager {
      * @param customer input customer
      * @return customer if it was correctly created
      */
-    Customer createCustomer(Customer customer);
+    Customer createCustomer(Customer customer) throws SQLException, ValidationException;
 
     /**
      * updates customers email and name
@@ -28,7 +30,7 @@ public interface CustomerManager {
      * deletes customer from list based on his id
      * @param id customer's id
      */
-    void deleteCustomer(long id);
+    void deleteCustomer(Long id);
 
     /**
      * lists all customers
@@ -41,7 +43,7 @@ public interface CustomerManager {
      * @param id customer's id
      * @return found customer
      */
-    Customer getCustomerById(long id);
+    Customer getCustomerById(Long id);
 
     void setDataSource(DataSource ds);
 }

@@ -1,9 +1,15 @@
 package cz.muni.fi.CustomerManager;
 
 import cz.muni.fi.Customer;
-
+import cz.muni.fi.DBUtils;
+import cz.muni.fi.IllegalEntityException;
+import cz.muni.fi.ServiceFailureException;
 import javax.sql.DataSource;
+import javax.xml.bind.ValidationException;
+import java.sql.*;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -13,6 +19,12 @@ import java.util.List;
 public class CustomerManagerImpl implements CustomerManager{
 
     private DataSource dataSource;
+    private static final Logger logger = Logger.getLogger(
+            CustomerManagerImpl.class.getName());
+
+    public CustomerManagerImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Override
     public void setDataSource(DataSource ds) {
@@ -26,8 +38,41 @@ public class CustomerManagerImpl implements CustomerManager{
     }
 
     @Override
-    public Customer createCustomer(Customer customer) {
-        return null;
+    public Customer createCustomer(Customer customer) throws SQLException, ValidationException {
+        checkDataSource();
+        validate(customer);
+        if (customer.getId() != null) {
+            throw new IllegalEntityException("customer id is already set");
+        }
+        Connection conn = null;
+        PreparedStatement st = null;
+        try {
+            conn = dataSource.getConnection();
+            // Temporary turn autocommit mode off. It is turned back on in
+            // method DBUtils.closeQuietly(...)
+            conn.setAutoCommit(false);
+            st = conn.prepareStatement(
+                    "INSERT INTO customer (id,fullName,email) VALUES (?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            st.setLong(1, customer.getId());
+            st.setString(2, customer.getFullName());
+            st.setString(3, customer.getEmail());
+
+            int count = st.executeUpdate();
+            DBUtils.checkUpdatesCount(count, customer, true);
+
+            Long id = DBUtils.getId(st.getGeneratedKeys());
+            customer.setId(id);
+            conn.commit();
+        } catch (SQLException ex) {
+            String msg = "Error when inserting grave into db";
+            logger.log(Level.SEVERE, msg, ex);
+            throw new ServiceFailureException(msg, ex);
+        } finally {
+            DBUtils.doRollbackQuietly(conn);
+            DBUtils.closeQuietly(conn, st);
+        }
+        return customer;
     }
 
     @Override
@@ -36,7 +81,7 @@ public class CustomerManagerImpl implements CustomerManager{
     }
 
     @Override
-    public void deleteCustomer(long id) {
+    public void deleteCustomer(Long id) {
 
     }
 
@@ -46,7 +91,19 @@ public class CustomerManagerImpl implements CustomerManager{
     }
 
     @Override
-    public Customer getCustomerById(long id) {
+    public Customer getCustomerById(Long id) {
         return null;
+    }
+
+    private void validate(Customer customer) throws ValidationException {
+        if (customer == null) {
+            throw new IllegalArgumentException("grave is null");
+        }
+        if (customer.getFullName() == null) {
+            throw new ValidationException("name is null");
+        }
+        if (customer.getEmail() == null) {
+            throw new ValidationException("email is null");
+        }
     }
 }

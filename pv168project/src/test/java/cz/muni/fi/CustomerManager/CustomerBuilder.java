@@ -9,11 +9,11 @@ import cz.muni.fi.Customer;
  */
 public class CustomerBuilder {
 
-    private long id;
+    private Long id;
     private String fullName;
     private String email;
 
-    public CustomerBuilder id(long id) {
+    public CustomerBuilder id(Long id) {
         this.id = id;
         return this;
     }
