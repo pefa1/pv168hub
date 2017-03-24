@@ -1,12 +1,11 @@
-package cz.muni.fi.CustomerManager;
+package cz.muni.fi;
 
-import cz.muni.fi.Customer;
-import cz.muni.fi.DBUtils;
-import cz.muni.fi.IllegalEntityException;
-import cz.muni.fi.ServiceFailureException;
 import javax.sql.DataSource;
 import javax.xml.bind.ValidationException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,7 +15,7 @@ import java.util.logging.Logger;
  * Created by Marek Pfliegler on 8.3.2017.
  * implementation of CustomerManager interface
  */
-public class CustomerManagerImpl implements CustomerManager{
+public class CustomerManagerImpl implements CustomerManager {
 
     private DataSource dataSource;
     private static final Logger logger = Logger.getLogger(

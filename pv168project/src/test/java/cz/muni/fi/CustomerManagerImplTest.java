@@ -1,9 +1,4 @@
-package cz.muni.fi.CustomerManager;
-
-import cz.muni.fi.Customer;
-import cz.muni.fi.DBUtils;
-import cz.muni.fi.ServiceFailureException;
-import cz.muni.fi.IllegalEntityException;
+package cz.muni.fi;
 
 import java.sql.SQLException;
 

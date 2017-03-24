@@ -1,6 +1,4 @@
-package cz.muni.fi.CustomerManager;
-
-import cz.muni.fi.Customer;
+package cz.muni.fi;
 
 import javax.sql.DataSource;
 import javax.xml.bind.ValidationException;

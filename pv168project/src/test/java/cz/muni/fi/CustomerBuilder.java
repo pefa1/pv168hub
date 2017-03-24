@@ -1,7 +1,5 @@
-package cz.muni.fi.CustomerManager;
+package cz.muni.fi;
 
-
-import cz.muni.fi.Customer;
 
 /**
  * Created by Marek Pfliegler on 15.3.2017.
