@@ -2,6 +2,7 @@ package cz.muni.fi.RentManager;
 
 import cz.muni.fi.Rent;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 /**
@@ -22,4 +23,6 @@ public interface RentManager {
     public List<Rent> listRentsByCustomer(long customer_id);
 
     public List<Rent> listRentsByBook(long book_id);
+
+    void setDataSource(DataSource ds);
 }
