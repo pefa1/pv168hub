@@ -39,7 +39,7 @@ public class RentManagerImplTest {
      */
     private CustomerBuilder sampleCustomer1() {
         return new CustomerBuilder()
-                .id(0L) //then change to null, it will automatically change in createCustomer method
+                .id(null) //then change to null, it will automatically change in createCustomer method
                 .email("mail@mail.com") //then change to null, it will automatically change in createCustomer method
                 .fullName("full name"); //then change to null, it will automatically change in createCustomer method
     }
@@ -50,7 +50,7 @@ public class RentManagerImplTest {
      */
     private CustomerBuilder sampleCustomer2() {
         return new CustomerBuilder()
-                .id(1L) //then change to null, it will automatically change in createCustomer method
+                .id(null) //then change to null, it will automatically change in createCustomer method
                 .email("email@email.com") //then change to null, it will automatically change in createCustomer method
                 .fullName("name"); //then change to null, it will automatically change in createCustomer method
     }
