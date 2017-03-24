@@ -24,7 +24,7 @@ public interface CustomerManager {
      * updates customers email and name
      * @param customer input customer
      */
-    void updateCustomer(Customer customer);
+    void updateCustomer(Customer customer) throws ValidationException;
 
     /**
      * deletes customer from list based on his id

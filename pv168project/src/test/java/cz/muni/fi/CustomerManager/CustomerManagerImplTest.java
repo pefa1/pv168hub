@@ -1,12 +1,13 @@
 package cz.muni.fi.CustomerManager;
 
 import cz.muni.fi.Customer;
+import cz.muni.fi.DBUtils;
+import cz.muni.fi.ServiceFailureException;
+import cz.muni.fi.IllegalEntityException;
+
 import java.sql.SQLException;
 
 import static org.mockito.Mockito.*;
-
-import cz.muni.fi.DBUtils;
-import cz.muni.fi.ServiceFailureException;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -313,7 +314,13 @@ public class CustomerManagerImplTest {
     public void updateBodyWithSqlExceptionThrown() throws SQLException, ValidationException {
         Customer customer = sampleCustomer1().build();
         customerManager.createCustomer(customer);
-        testExpectedServiceFailureException((customerManager) -> customerManager.updateCustomer(customer));
+        testExpectedServiceFailureException((customerManager) -> {
+            try {
+                customerManager.updateCustomer(customer);
+            } catch (ValidationException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Test

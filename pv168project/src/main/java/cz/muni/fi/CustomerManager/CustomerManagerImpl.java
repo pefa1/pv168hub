@@ -76,13 +76,15 @@ public class CustomerManagerImpl implements CustomerManager{
     }
 
     @Override
-    public void updateCustomer(Customer customer) {
-
+    public void updateCustomer(Customer customer) throws ValidationException {
+        validate(customer);
     }
 
     @Override
     public void deleteCustomer(Long id) {
-
+        if (id < 0L) {
+            throw new IllegalArgumentException("wrong id in delete");
+        }
     }
 
     @Override
@@ -92,12 +94,15 @@ public class CustomerManagerImpl implements CustomerManager{
 
     @Override
     public Customer getCustomerById(Long id) {
+        if (id < 0L) {
+            throw new IllegalArgumentException("wrong id in get");
+        }
         return null;
     }
 
     private void validate(Customer customer) throws ValidationException {
         if (customer == null) {
-            throw new IllegalArgumentException("grave is null");
+            throw new IllegalArgumentException("customer is null");
         }
         if (customer.getFullName() == null) {
             throw new ValidationException("name is null");
