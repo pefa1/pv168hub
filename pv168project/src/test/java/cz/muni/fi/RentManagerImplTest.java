@@ -1,9 +1,5 @@
-package cz.muni.fi.RentManager;
+package cz.muni.fi;
 
-import cz.muni.fi.BookBuilder;
-import cz.muni.fi.CustomerBuilder;
-import cz.muni.fi.DBUtils;
-import cz.muni.fi.Rent;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -82,9 +78,9 @@ public class RentManagerImplTest {
 
     private RentBuilder sampleRent() {
         return new RentBuilder()
-                .id(0L)
+                .id(null)
                 .customer(sampleCustomer1().build())
-                .book(sampleBookBuilder().id(0L).build())
+                .book(sampleBookBuilder().id(null).build())
                 .rentTime(LocalDate.of(2017, Month.MARCH, 22))
                 .expectedReturnTime(LocalDate.of(2017, Month.APRIL, 22))
                 .returnTime(null);
@@ -92,9 +88,9 @@ public class RentManagerImplTest {
 
     private RentBuilder sampleRent2() {
         return new RentBuilder()
-                .id(1L)
+                .id(null)
                 .customer(sampleCustomer2().build())
-                .book(sample2BookBuilder().id(1L).build())
+                .book(sample2BookBuilder().id(null).build())
                 .rentTime(LocalDate.of(2017, Month.MARCH, 22))
                 .expectedReturnTime(LocalDate.of(2017, Month.APRIL, 22))
                 .returnTime(null);
@@ -118,10 +114,11 @@ public class RentManagerImplTest {
     @Test
     public void createRentWithSameId() throws Exception {
         Rent rent = sampleRent().build();
-        Rent rent1 = sampleRent2().id(0L).build();
+        Rent rent1 = sampleRent2().build();
 
-        rentManager.createRent(rent);
+        Rent result = rentManager.createRent(rent);
         try {
+            rent1.setId(result.getId());
             rentManager.createRent(rent1);
         } catch (IllegalArgumentException ex) {
             Assertions.fail("rent with that id already exists" + ex);
@@ -131,7 +128,7 @@ public class RentManagerImplTest {
     @Test
     public void createRentWithSameBook() throws Exception {
         Rent rent = sampleRent().build();
-        Rent rent1 = sampleRent2().book(sample2BookBuilder().id(0L).build()).build();
+        Rent rent1 = sampleRent2().book(sample2BookBuilder().id(null).build()).build();
 
         rentManager.createRent(rent);
         try {
@@ -200,11 +197,11 @@ public class RentManagerImplTest {
         Rent rent = sampleRent().build();
         Rent rent1 = sampleRent2().build();
 
-        rentManager.createRent(rent);
+        Rent result = rentManager.createRent(rent);
         rentManager.createRent(rent1);
 
         try {
-            rent1.setBook(sampleBookBuilder().id(0L).build());
+            rent1.setBook(sampleBookBuilder().id(result.getBook().getId()).build());
             rentManager.updateRent(rent1);
         } catch (IllegalArgumentException ex) {
             Assertions.fail("book is already borrowed" + ex);

@@ -6,18 +6,18 @@ import java.time.LocalDate;
  * Created by Marek Pfliegler on 8.3.2017.
  */
 public class Rent {
-    private long id;
+    private Long id;
     private Customer customer;
     private Book book;
     private LocalDate rentTime;
     private LocalDate expectedReturnTime;
     private LocalDate returnTime;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -68,7 +68,7 @@ public class Rent {
 
         Rent rent = (Rent) o;
 
-        if (id != rent.id) return false;
+        if (id != null ? !id.equals(rent.id) : rent.id != null) return false;
         if (customer != null ? !customer.equals(rent.customer) : rent.customer != null) return false;
         if (book != null ? !book.equals(rent.book) : rent.book != null) return false;
         if (rentTime != null ? !rentTime.equals(rent.rentTime) : rent.rentTime != null) return false;
@@ -79,7 +79,7 @@ public class Rent {
 
     @Override
     public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (customer != null ? customer.hashCode() : 0);
         result = 31 * result + (book != null ? book.hashCode() : 0);
         result = 31 * result + (rentTime != null ? rentTime.hashCode() : 0);

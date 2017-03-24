@@ -1,8 +1,4 @@
-package cz.muni.fi.RentManager;
-
-import cz.muni.fi.Book;
-import cz.muni.fi.Customer;
-import cz.muni.fi.Rent;
+package cz.muni.fi;
 
 import java.time.LocalDate;
 
@@ -11,14 +7,14 @@ import java.time.LocalDate;
  */
 public class RentBuilder {
 
-    private long id;
+    private Long id;
     private Customer customer;
     private Book book;
     private LocalDate rentTime;
     private LocalDate expectedReturnTime;
     private LocalDate returnTime;
 
-    public RentBuilder id(long id) {
+    public RentBuilder id(Long id) {
         this.id = id;
         return this;
     }
