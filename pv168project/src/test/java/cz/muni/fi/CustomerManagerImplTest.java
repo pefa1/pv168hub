@@ -77,25 +77,6 @@ public class CustomerManagerImplTest {
     }
 
     /**
-     * creates 2 customers with same email, second should throw exception
-     * @throws Exception customer1 should not be created
-     */
-    @Test
-    public void createSameEmailCustomer() throws Exception {
-        Customer customer = sampleCustomer1().build();
-        Customer customer1 = sampleCustomer2().email("mail@mail.com").build();
-
-        assertThat(customer.getId()).isNotEqualTo(customer1.getId());
-
-        customerManager.createCustomer(customer);
-        try {
-            customerManager.createCustomer(customer1);
-        } catch (IllegalArgumentException ex) {
-            Assertions.fail("customers have same email" + ex);
-        }
-    }
-
-    /**
      * customer should be created correctly
      * @throws Exception exception should not be thrown
      */
@@ -105,22 +86,55 @@ public class CustomerManagerImplTest {
 
         Customer result = customerManager.createCustomer(customer);
         assertThat(result).isNotNull();
-
-        //Customer resultGBI = customerManager.getCustomerById(result.getId());
-        //assertThat(result).isEqualToComparingFieldByField(resultGBI);
+        assertThat(result.getId()).isNotNull();
     }
 
+    /**
+     * creates 2 customers with same email, second should throw exception
+     * @throws Exception customer1 should not be created
+     */
+    @Test
+    public void createSameEmailCustomer() throws Exception {
+        Customer customer = sampleCustomer1().build();
+        Customer customer1 = sampleCustomer2().email("mail@mail.com").build();
+
+        assertThat(customer.getId()).isNull();
+        assertThat(customer1.getId()).isNull();
+
+        Customer result = customerManager.createCustomer(customer);
+        try {
+            customerManager.createCustomer(customer1);
+        } catch (IllegalArgumentException ex) {
+            ex.printStackTrace();
+        }
+        assertThat(result.getId()).isNotNull();
+    }
+
+    /**
+     * tries to create customer with existing id
+     * @throws Exception exception should be thrown
+     */
     @Test
     public void createSameIdCustomer() throws Exception {
         Customer customer1 = sampleCustomer1().build();
-        Customer customer2 = sampleCustomer2().id(0L).build();
+        Customer customer2 = sampleCustomer2().build();
 
-        customerManager.createCustomer(customer1);
+        Customer result = customerManager.createCustomer(customer1);
         try {
+            customer2.setId(result.getId());
             customerManager.createCustomer(customer2);
-        } catch (IllegalArgumentException ex) {
-            Assertions.fail("customers have same id" + ex);
+        } catch (IllegalEntityException ex) {
+            ex.printStackTrace();
         }
+    }
+
+    /**
+     * searching for a not existing customer, for example negative id
+     * @throws Exception should throw exception
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void getNonExistingCustomerById() throws Exception {
+        customerManager.getCustomerById(-1L);
     }
 
     /**
@@ -134,15 +148,6 @@ public class CustomerManagerImplTest {
         Customer result = customerManager.createCustomer(customer);
 
         assertThat(customerManager.getCustomerById(result.getId())).isEqualToComparingFieldByField(result);
-    }
-
-    /**
-     * searching for a not existing customer, for example negative id
-     * @throws Exception should throw exception
-     */
-    @Test(expected = IllegalArgumentException.class)
-    public void getNonExistingCustomerById() throws Exception {
-        customerManager.getCustomerById(-1L);
     }
 
     /**

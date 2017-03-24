@@ -2,10 +2,7 @@ package cz.muni.fi;
 
 import javax.sql.DataSource;
 import javax.xml.bind.ValidationException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,12 +40,25 @@ public class CustomerManagerImpl implements CustomerManager {
         if (customer.getId() != null) {
             throw new IllegalEntityException("customer id is already set");
         }
+
+        try (Connection con = dataSource.getConnection()) {
+            try (PreparedStatement st1 = con.prepareStatement("select * from customers where email = ?")) {
+                st1.setString(1, customer.getEmail());
+                try (ResultSet rs = st1.executeQuery()) {
+                    if (rs.next()) {
+                        throw new IllegalArgumentException("email is existing");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            //log.error("cannot select books", e);
+            //throw new BookException("database select failed", e);
+        }
+
         Connection conn = null;
         PreparedStatement st = null;
         try {
             conn = dataSource.getConnection();
-            // Temporary turn autocommit mode off. It is turned back on in
-            // method DBUtils.closeQuietly(...)
             conn.setAutoCommit(false);
             st = conn.prepareStatement(
                     "INSERT INTO customer (fullName,email) VALUES (?,?)",
@@ -63,7 +73,7 @@ public class CustomerManagerImpl implements CustomerManager {
             customer.setId(id);
             conn.commit();
         } catch (SQLException ex) {
-            String msg = "Error when inserting grave into db";
+            String msg = "Error when inserting customer into db";
             logger.log(Level.SEVERE, msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
