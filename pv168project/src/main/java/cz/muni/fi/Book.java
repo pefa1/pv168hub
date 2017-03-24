@@ -25,7 +25,7 @@ public class Book {
         return result;
     }
 
-    private long id;
+    private Long id;
     private String author;
     private String title;
 

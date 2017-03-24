@@ -51,11 +51,10 @@ public class CustomerManagerImpl implements CustomerManager {
             // method DBUtils.closeQuietly(...)
             conn.setAutoCommit(false);
             st = conn.prepareStatement(
-                    "INSERT INTO customer (id,fullName,email) VALUES (?,?,?)",
+                    "INSERT INTO customer (fullName,email) VALUES (?,?)",
                     Statement.RETURN_GENERATED_KEYS);
-            st.setLong(1, customer.getId());
-            st.setString(2, customer.getFullName());
-            st.setString(3, customer.getEmail());
+            st.setString(1, customer.getFullName());
+            st.setString(2, customer.getEmail());
 
             int count = st.executeUpdate();
             DBUtils.checkUpdatesCount(count, customer, true);
