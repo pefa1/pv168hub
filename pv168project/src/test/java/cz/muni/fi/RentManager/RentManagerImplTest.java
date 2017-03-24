@@ -2,13 +2,16 @@ package cz.muni.fi.RentManager;
 
 import cz.muni.fi.BookManager.BookBuilder;
 import cz.muni.fi.CustomerBuilder;
+import cz.muni.fi.DBUtils;
 import cz.muni.fi.Rent;
+import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.time.Month;
 import java.time.LocalDate;
 
@@ -23,14 +26,24 @@ public class RentManagerImplTest {
     private DataSource ds;
     private final static LocalDate NOW = LocalDate.of(2016, Month.FEBRUARY, 29);
 
+    private static DataSource prepareDataSource() throws SQLException {
+        EmbeddedDataSource ds = new EmbeddedDataSource();
+        ds.setDatabaseName("memory:rentmgr-test");
+        ds.setCreateDatabase("create");
+        return ds;
+    }
+
     @Before
     public void setUp() throws Exception {
         rentManager = new RentManagerImpl();
+        ds = prepareDataSource();
+        DBUtils.executeSqlScript(ds,RentManager.class.getResource("createTables.sql"));
+        rentManager.setDataSource(ds);
     }
 
     @After
     public void tearDown() throws Exception {
-
+        DBUtils.executeSqlScript(ds,RentManager.class.getResource("dropTables.sql"));
     }
 
     /**

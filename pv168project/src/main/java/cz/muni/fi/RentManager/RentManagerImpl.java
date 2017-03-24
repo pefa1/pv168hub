@@ -2,6 +2,7 @@ package cz.muni.fi.RentManager;
 
 import cz.muni.fi.Rent;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 /**
@@ -9,6 +10,18 @@ import java.util.List;
  */
 public class RentManagerImpl implements RentManager {
 
+    private DataSource dataSource;
+
+    @Override
+    public void setDataSource(DataSource ds) {
+        this.dataSource = ds;
+    }
+
+    private void checkDataSource() {
+        if (dataSource == null) {
+            throw new IllegalStateException("DataSource is not set");
+        }
+    }
 
     @Override
     public Rent createRent(Rent rent) {

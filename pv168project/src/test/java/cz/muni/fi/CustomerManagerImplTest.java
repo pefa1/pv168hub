@@ -27,7 +27,7 @@ public class CustomerManagerImplTest {
 
     private static DataSource prepareDataSource() throws SQLException {
         EmbeddedDataSource ds = new EmbeddedDataSource();
-        ds.setDatabaseName("memory:rentmgr-test");
+        ds.setDatabaseName("memory:customermgr-test");
         ds.setCreateDatabase("create");
         return ds;
     }
