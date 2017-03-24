@@ -21,9 +21,9 @@ public class CustomerManagerImpl implements CustomerManager {
     private static final Logger logger = Logger.getLogger(
             CustomerManagerImpl.class.getName());
 
-    public CustomerManagerImpl(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+    //public CustomerManagerImpl(DataSource dataSource) {
+      //  this.dataSource = dataSource;
+    //}
 
     @Override
     public void setDataSource(DataSource ds) {

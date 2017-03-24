@@ -34,9 +34,10 @@ public class CustomerManagerImplTest {
 
     @Before
     public void setUp() throws Exception {
+        customerManager = new CustomerManagerImpl();
         ds = prepareDataSource();
         DBUtils.executeSqlScript(ds,CustomerManager.class.getResource("createTables.sql"));
-        customerManager = new CustomerManagerImpl(ds); // medzi testami ostava iba to co je tu, pred kazdym testom sa spusti setup
+        customerManager.setDataSource(ds); // medzi testami ostava iba to co je tu, pred kazdym testom sa spusti setup
     }
 
     @After
