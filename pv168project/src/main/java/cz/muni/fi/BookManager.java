@@ -1,4 +1,4 @@
-package cz.muni.fi.BookManager;
+package cz.muni.fi;
 
 import cz.muni.fi.Book;
 
@@ -8,10 +8,10 @@ import java.util.List;
  * Created by xkosta on 8.3.17.
  */
 public interface BookManager {
-    Book createBook(Book book);
+    void createBook(Book book);
     void updateBook(Book book);
-    void deleteBook(long id);
+    void deleteBook(Long id);
     List<Book> listAllBooks();
     List<Book> listBooksByTitle(String title);
-    Book getBookById(long id);
+    Book getBookById(Long id);
 }

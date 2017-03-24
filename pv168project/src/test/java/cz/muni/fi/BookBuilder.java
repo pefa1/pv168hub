@@ -1,18 +1,17 @@
-package cz.muni.fi.BookManager;
+package cz.muni.fi;
 
 
-import cz.muni.fi.Book;
 /**
  * Created by Josef Košta on 15.3.2017.
  * builder for a default customer
  */
 public class BookBuilder {
 
-    private long id;
+    private Long id;
     private String author;
     private String title;
 
-    public BookBuilder id(long id){
+    public BookBuilder id(Long id){
         this.id = id;
         return this;
     }

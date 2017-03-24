@@ -1,6 +1,6 @@
 package cz.muni.fi.RentManager;
 
-import cz.muni.fi.BookManager.BookBuilder;
+import cz.muni.fi.BookBuilder;
 import cz.muni.fi.CustomerBuilder;
 import cz.muni.fi.Rent;
 import org.assertj.core.api.Assertions;

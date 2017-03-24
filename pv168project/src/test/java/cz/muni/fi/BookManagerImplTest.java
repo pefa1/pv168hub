@@ -1,17 +1,16 @@
-package cz.muni.fi.BookManager;
+package cz.muni.fi;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import cz.muni.fi.Book;
+import cz.muni.fi.BookManagerImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.sql.SQLException;
-import java.time.*;
 import javax.sql.DataSource;
 import org.apache.derby.jdbc.EmbeddedDataSource;
-import org.junit.*;
-import org.junit.rules.ExpectedException;
 
 /**
  * Created by xkosta on 8.3.17.
@@ -31,16 +30,16 @@ public class BookManagerImplTest {
     }
 
     @Before
-    public void setUp() throws Exception {
-        bookManager = new BookManagerImpl();
+    public void setUp() throws SQLException {
         ds = prepareDataSource();
+        DBUtils.executeSqlScript(ds,BookManager.class.getResource("createTables.sql"));
+        bookManager = new BookManagerImpl();
         bookManager.setDataSource(ds);
-
     }
 
     @After
-    public void tearDown() throws Exception {
-
+    public void tearDown() throws SQLException {
+        DBUtils.executeSqlScript(ds,BookManager.class.getResource("dropTables.sql"));
     }
 
 
@@ -61,9 +60,8 @@ public class BookManagerImplTest {
         Book book = sampleBookBuilder().build();
         bookManager.createBook(book);
 
-        long bookId = book.getId();
-        assertNotEquals("Book id is 0", bookId, 0L);
-        Book result = bookManager.createBook(book);
+        Long bookId = book.getId();
+        assertNotNull("Book id is null", bookId);
 
         assertEquals("Book should be equal", bookManager.getBookById(bookId), book);
     }
@@ -87,9 +85,9 @@ public class BookManagerImplTest {
         assertEquals("Could not get the book", bookManager.getBookById(book.getId()), book);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void getBookByIdBookNegativeId() throws Exception {
-        bookManager.getBookById(-10L);
+        assertNull("Should return null", bookManager.getBookById(-10L));
     }
 
     @Test
@@ -112,9 +110,11 @@ public class BookManagerImplTest {
         assertEquals("Author of not changed book changed", book2, bookManager.getBookById(book2.getId()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalEntityException.class)
     public void updateBookDoesNotExist() throws Exception {
         Book book = sampleBookBuilder().build();
+        bookManager.createBook(book);
+        bookManager.deleteBook(book.getId());
         bookManager.updateBook(book);
     }
 
@@ -135,19 +135,56 @@ public class BookManagerImplTest {
         assertNull("Book should not exist", bookManager.getBookById(book.getId()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalEntityException.class)
     public void deleteBookDoesNotExist() throws Exception {
-        bookManager.deleteBook(10L);
+        Book book = sampleBookBuilder().build();
+
+        bookManager.createBook(book);
+        bookManager.deleteBook(book.getId());
+        bookManager.deleteBook(book.getId());
     }
 
     @Test
     public void listAllBooks() throws Exception {
+        assertThat(bookManager.listAllBooks()).isEmpty();
 
+        Book book1 = sampleBookBuilder().build();
+        Book book2 = sample2BookBuilder().build();
+
+        bookManager.createBook(book1);
+        bookManager.createBook(book2);
+
+        assertThat(bookManager.listAllBooks())
+                .usingFieldByFieldElementComparator()
+                .containsOnly(book1, book2);
     }
 
     @Test
     public void listBooksByTitle() throws Exception {
+        assertThat(bookManager.listBooksByTitle("wrong title")).isEmpty();
 
+        Book book1 = sampleBookBuilder().build();
+        Book book2 = sample2BookBuilder().build();
+        Book book3 = sampleBookBuilder().build();
+        book3.setAuthor("novy autor");
+
+        bookManager.createBook(book1);
+        bookManager.createBook(book2);
+
+        assertThat(bookManager.listBooksByTitle(book1.getTitle()))
+                .usingFieldByFieldElementComparator()
+                .containsOnly(book1);
+
+        bookManager.createBook(book3);
+        assertThat(bookManager.listBooksByTitle(book1.getTitle()))
+                .usingFieldByFieldElementComparator()
+                .containsOnly(book1, book3);
+
+        assertThat(bookManager.listAllBooks())
+                .usingFieldByFieldElementComparator()
+                .containsOnly(book1, book2, book3);
+
+        assertThat(bookManager.listBooksByTitle("wrong title")).isEmpty();
     }
 
 }
