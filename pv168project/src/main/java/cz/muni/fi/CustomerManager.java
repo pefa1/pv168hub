@@ -22,7 +22,7 @@ public interface CustomerManager {
      * updates customers email and name
      * @param customer input customer
      */
-    void updateCustomer(Customer customer) throws ValidationException;
+    void updateCustomer(Customer customer) throws ValidationException, SQLException;
 
     /**
      * deletes customer from list based on his id
@@ -34,7 +34,7 @@ public interface CustomerManager {
      * lists all customers
      * @return list of customers
      */
-    List<Customer> listAllCustomers();
+    List<Customer> listAllCustomers() throws SQLException;
 
     /**
      * looks for a customer based on his id
