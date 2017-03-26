@@ -2,16 +2,12 @@ package cz.muni.fi;
 
 import java.sql.SQLException;
 
-import static org.mockito.Mockito.*;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-
 import javax.sql.DataSource;
-import javax.xml.bind.ValidationException;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -105,6 +101,7 @@ public class CustomerManagerImplTest {
         try {
             customerManager.createCustomer(customer1);
         } catch (IllegalArgumentException ex) {
+            ex.printStackTrace();
         }
         assertThat(result.getId()).isNotNull();
     }
@@ -114,7 +111,7 @@ public class CustomerManagerImplTest {
      * @throws Exception exception should be thrown
      */
     @Test
-    public void createSameIdCustomer() throws Exception {
+    public void createCustomerWithId() throws Exception {
         Customer customer1 = sampleCustomer1().build();
         Customer customer2 = sampleCustomer2().build();
 
@@ -123,6 +120,7 @@ public class CustomerManagerImplTest {
             customer2.setId(result.getId());
             customerManager.createCustomer(customer2);
         } catch (IllegalEntityException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -186,7 +184,7 @@ public class CustomerManagerImplTest {
             customer1.setEmail("mail@mail.com");
             customerManager.updateCustomer(customer1);
         } catch (IllegalArgumentException ex) {
-            Assertions.fail("customer with that email is existing, you cannot update on it" + ex);
+            ex.printStackTrace();
         }
     }
 
@@ -214,6 +212,7 @@ public class CustomerManagerImplTest {
         try {
             customerManager.getCustomerById(result.getId());
         } catch (IllegalArgumentException ex) {
+            ex.printStackTrace();
         }
     }
 

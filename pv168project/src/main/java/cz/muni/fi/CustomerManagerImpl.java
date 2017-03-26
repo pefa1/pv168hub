@@ -8,7 +8,6 @@ import javax.xml.bind.ValidationException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 
 /**
@@ -154,7 +153,7 @@ public class CustomerManagerImpl implements CustomerManager {
         log.debug("getAllCustomers()");
         try (Connection con = dataSource.getConnection()) {
             try (PreparedStatement st = con.prepareStatement("select * from customer")) {
-                try (ResultSet rs = st.executeQuery()) {
+                /*try (ResultSet rs = st.executeQuery()) {
                     List<Customer> customers = new ArrayList<>();
                     while (rs.next()) {
                         Customer customer = new Customer();
@@ -164,7 +163,8 @@ public class CustomerManagerImpl implements CustomerManager {
                         customers.add(customer);
                     }
                     return customers;
-                }
+                }*/
+                return executeQueryForMultipleCustomers(st);
             }
         } catch (SQLException e) {
             log.error("cannot select books", e);
@@ -223,7 +223,7 @@ public class CustomerManagerImpl implements CustomerManager {
         }
     }
 
-    static List<Customer> executeQueryForMultipleCustomers(PreparedStatement st) throws SQLException {
+    private static List<Customer> executeQueryForMultipleCustomers(PreparedStatement st) throws SQLException {
         ResultSet rs = st.executeQuery();
         List<Customer> result = new ArrayList<>();
         while (rs.next()) {
