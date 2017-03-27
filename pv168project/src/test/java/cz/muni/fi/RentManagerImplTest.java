@@ -18,9 +18,11 @@ import static org.assertj.core.api.Assertions.*;
  */
 public class RentManagerImplTest {
 
-    private RentManager rentManager;
+    private RentManagerImpl rentManager;
+    private CustomerManagerImpl customerManager;
+    private BookManagerImpl bookManager;
     private DataSource ds;
-    private final static LocalDate NOW = LocalDate.of(2016, Month.FEBRUARY, 29);
+    //private final static LocalDate NOW = LocalDate.of(2016, Month.FEBRUARY, 29);
 
     private static DataSource prepareDataSource() throws SQLException {
         EmbeddedDataSource ds = new EmbeddedDataSource();
@@ -32,9 +34,13 @@ public class RentManagerImplTest {
     @Before
     public void setUp() throws Exception {
         rentManager = new RentManagerImpl();
+        customerManager = new CustomerManagerImpl();
+        bookManager = new BookManagerImpl();
         ds = prepareDataSource();
         DBUtils.executeSqlScript(ds,RentManager.class.getResource("createTables.sql"));
         rentManager.setDataSource(ds);
+        customerManager.setDataSource(ds);
+        bookManager.setDataSource(ds);
     }
 
     @After
@@ -79,30 +85,24 @@ public class RentManagerImplTest {
     private RentBuilder sampleRent() {
         return new RentBuilder()
                 .id(null)
-                .customer(sampleCustomer1().build())
-                .book(sampleBookBuilder().id(null).build())
-                .rentTime(LocalDate.of(2017, Month.MARCH, 22))
-                .expectedReturnTime(LocalDate.of(2017, Month.APRIL, 22))
-                .returnTime(null);
-    }
-
-    private RentBuilder sampleRent2() {
-        return new RentBuilder()
-                .id(null)
-                .customer(sampleCustomer2().build())
-                .book(sample2BookBuilder().id(null).build())
-                .rentTime(LocalDate.of(2017, Month.MARCH, 22))
+                .customer(null)
+                .book(null)
+                .rentTime(null)
                 .expectedReturnTime(LocalDate.of(2017, Month.APRIL, 22))
                 .returnTime(null);
     }
 
     @Test
     public void createRentWithWrongTime() throws Exception {
-        Rent rent = sampleRent().expectedReturnTime(LocalDate.of(2017,Month.FEBRUARY, 22)).build();
+        Customer customer = sampleCustomer1().build();
+        Book book = sampleBookBuilder().id(null).build();
+        customerManager.createCustomer(customer);
+        bookManager.createBook(book);
+        Rent rent = sampleRent().customer(customer).book(book).expectedReturnTime(LocalDate.of(2017,Month.FEBRUARY, 22)).build();
         try {
             rentManager.createRent(rent);
         } catch (IllegalArgumentException ex) {
-            Assertions.fail("expected return time is before start time" + ex);
+            ex.printStackTrace();
         }
     }
 
@@ -113,34 +113,71 @@ public class RentManagerImplTest {
 
     @Test
     public void createRentWithSameId() throws Exception {
-        Rent rent = sampleRent().build();
-        Rent rent1 = sampleRent2().build();
+        Customer customer = sampleCustomer1().build();
+        Customer customer1 = sampleCustomer2().build();
+        Book book = sampleBookBuilder().id(null).build();
+        Book book1 =sample2BookBuilder().id(null).build();
+
+        customerManager.createCustomer(customer);
+        customerManager.createCustomer(customer1);
+        bookManager.createBook(book);
+        bookManager.createBook(book1);
+        Rent rent = sampleRent().customer(customer).book(book).build();
+        Rent rent1 = sampleRent().customer(customer1).book(book1).build();
 
         rentManager.createRent(rent);
         try {
             rent1.setId(rent.getId());
             rentManager.createRent(rent1);
         } catch (IllegalArgumentException ex) {
-            Assertions.fail("rent with that id already exists" + ex);
+            ex.printStackTrace();
         }
     }
 
     @Test
     public void createRentWithSameBook() throws Exception {
-        Rent rent = sampleRent().build();
-        Rent rent1 = sampleRent2().book(sample2BookBuilder().id(null).build()).build();
+        Customer customer = sampleCustomer1().build();
+        Customer customer1 = sampleCustomer2().build();
+        Book book = sampleBookBuilder().id(null).build();
+
+        customerManager.createCustomer(customer);
+        customerManager.createCustomer(customer1);
+        bookManager.createBook(book);
+
+        Rent rent = sampleRent().customer(customer).book(book).build();
+        Rent rent1 = sampleRent().customer(customer1).book(book).build();
 
         rentManager.createRent(rent);
         try {
             rentManager.createRent(rent1);
         } catch (IllegalArgumentException ex) {
-            Assertions.fail("rent with that book already exists" + ex);
+            ex.printStackTrace();
         }
     }
 
     @Test
+    public void createRent() throws Exception {
+        Customer customer = sampleCustomer1().build();
+        Book book = sampleBookBuilder().id(null).build();
+
+        customerManager.createCustomer(customer);
+        bookManager.createBook(book);
+
+        Rent rent = sampleRent().customer(customer).book(book).build();
+        rentManager.createRent(rent);
+
+        assertThat(rent.getId()).isNotNull();
+    }
+
+    @Test
     public void getRentById() throws Exception {
-        Rent rent = sampleRent().build();
+        Customer customer = sampleCustomer1().build();
+        Book book = sampleBookBuilder().id(null).build();
+
+        customerManager.createCustomer(customer);
+        bookManager.createBook(book);
+
+        Rent rent = sampleRent().customer(customer).book(book).build();
         rentManager.createRent(rent);
 
         assertThat(rentManager.getRentById(rent.getId())).isNotNull();
@@ -154,7 +191,13 @@ public class RentManagerImplTest {
 
     @Test
     public void updateRent() throws Exception {
-        Rent rent = sampleRent().build();
+        Customer customer = sampleCustomer1().build();
+        Book book = sampleBookBuilder().id(null).build();
+
+        customerManager.createCustomer(customer);
+        bookManager.createBook(book);
+
+        Rent rent = sampleRent().customer(customer).book(book).build();
         rentManager.createRent(rent);
 
         rent.setExpectedReturnTime(LocalDate.of(2017, Month.MAY, 22));
@@ -183,17 +226,25 @@ public class RentManagerImplTest {
 
     @Test
     public void updateRentOnExisting() throws Exception {
-        Rent rent = sampleRent().build();
-        Rent rent1 = sampleRent2().build();
+        Customer customer = sampleCustomer1().build();
+        Customer customer1 = sampleCustomer2().build();
+        customerManager.createCustomer(customer);
+
+        Book book = sampleBookBuilder().id(null).build();
+        Book book1 = sample2BookBuilder().id(null).build();
+        bookManager.createBook(book);
+
+        Rent rent = sampleRent().customer(customer).book(book).build();
+        Rent rent1 = sampleRent().customer(customer1).book(book1).build();
 
         rentManager.createRent(rent);
         rentManager.createRent(rent1);
 
         try {
-            rent1.setBook(sampleBookBuilder().id(rent.getBook().getId()).build());
+            rent1.setBook(book);
             rentManager.updateRent(rent1);
         } catch (IllegalArgumentException ex) {
-            Assertions.fail("book is already borrowed" + ex);
+            ex.printStackTrace();
         }
     }
 
@@ -204,7 +255,13 @@ public class RentManagerImplTest {
 
     @Test
     public void deleteOnlyRent() throws Exception {
-        Rent rent = sampleRent().build();
+        Customer customer = sampleCustomer1().build();
+        Book book = sampleBookBuilder().id(null).build();
+
+        customerManager.createCustomer(customer);
+        bookManager.createBook(book);
+
+        Rent rent = sampleRent().customer(customer).book(book).build();
         rentManager.createRent(rent);
 
         rentManager.deleteRent(rent.getId());
@@ -218,8 +275,16 @@ public class RentManagerImplTest {
 
     @Test
     public void deleteRent() throws Exception {
-        Rent rent = sampleRent().build();
-        Rent rent1 = sampleRent2().build();
+        Customer customer = sampleCustomer1().build();
+        Customer customer1 = sampleCustomer2().build();
+        customerManager.createCustomer(customer);
+
+        Book book = sampleBookBuilder().id(null).build();
+        Book book1 = sample2BookBuilder().id(null).build();
+        bookManager.createBook(book);
+
+        Rent rent = sampleRent().customer(customer).book(book).build();
+        Rent rent1 = sampleRent().customer(customer1).book(book1).build();
 
         rentManager.createRent(rent);
         rentManager.createRent(rent1);
@@ -229,7 +294,7 @@ public class RentManagerImplTest {
         try {
             rentManager.getRentById(rent.getId());
         } catch (IllegalArgumentException ex) {
-            Assertions.fail("rent should not exist" + ex);
+            ex.printStackTrace();
         }
 
         assertThat(rentManager.getRentById(rent1.getId())).isEqualToComparingFieldByField(rent1);
@@ -239,13 +304,21 @@ public class RentManagerImplTest {
     public void listAllRents() throws Exception {
         assertThat(rentManager.listAllRents()).isNullOrEmpty();
 
-        Rent rent = sampleRent().build();
+        Customer customer = sampleCustomer1().build();
+        Customer customer1 = sampleCustomer2().build();
+        customerManager.createCustomer(customer);
+
+        Book book = sampleBookBuilder().id(null).build();
+        Book book1 = sample2BookBuilder().id(null).build();
+        bookManager.createBook(book);
+
+        Rent rent = sampleRent().customer(customer).book(book).build();
         rentManager.createRent(rent);
 
         assertThat(rentManager.listAllRents()).usingFieldByFieldElementComparator().contains(rent);
         assertThat(rentManager.listAllRents().size()).isEqualTo(1);
 
-        Rent rent1 = sampleRent2().build();
+        Rent rent1 = sampleRent().customer(customer1).book(book1).build();
         rentManager.createRent(rent);
 
         assertThat(rentManager.listAllRents()).usingFieldByFieldElementComparator().contains(rent, rent1);
@@ -256,13 +329,21 @@ public class RentManagerImplTest {
     public void listRentsByCustomer() throws Exception {
         assertThat(rentManager.listAllRents()).isNullOrEmpty();
 
-        Rent rent = sampleRent().build();
+        Customer customer = sampleCustomer1().build();
+        Book book = sampleBookBuilder().id(null).build();
+        Book book1 = sample2BookBuilder().id(null).build();
+
+        customerManager.createCustomer(customer);
+        bookManager.createBook(book);
+        bookManager.createBook(book1);
+
+        Rent rent = sampleRent().customer(customer).book(book).build();
         rentManager.createRent(rent);
 
         assertThat(rentManager.listRentsByCustomer(rent.getCustomer().getId()).size()).isEqualTo(1);
         assertThat(rentManager.listRentsByCustomer(rent.getCustomer().getId())).usingFieldByFieldElementComparator().contains(rent);
 
-        Rent rent1 = sampleRent2().customer(sampleCustomer1().build()).build();
+        Rent rent1 = sampleRent().customer(customer).book(book1).build();
         rentManager.createRent(rent1);
 
         assertThat(rentManager.listRentsByCustomer(rent1.getCustomer().getId()).size()).isEqualTo(2);
@@ -278,7 +359,13 @@ public class RentManagerImplTest {
     public void listRentsByBook() throws Exception {
         assertThat(rentManager.listAllRents()).isNullOrEmpty();
 
-        Rent rent = sampleRent().build();
+        Customer customer = sampleCustomer1().build();
+        Book book = sampleBookBuilder().id(null).build();
+
+        customerManager.createCustomer(customer);
+        bookManager.createBook(book);
+
+        Rent rent = sampleRent().customer(customer).book(book).build();
         rentManager.createRent(rent);
 
         assertThat(rentManager.listRentsByBook(rent.getBook().getId())).usingFieldByFieldElementComparator().contains(rent);

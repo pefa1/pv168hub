@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.*;
  */
 public class CustomerManagerImplTest {
 
-    private CustomerManager customerManager;
+    private CustomerManagerImpl customerManager;
     private DataSource ds;
 
     private static DataSource prepareDataSource() throws SQLException {

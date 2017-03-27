@@ -42,6 +42,4 @@ public interface CustomerManager {
      * @return found customer
      */
     Customer getCustomerById(Long id);
-
-    void setDataSource(DataSource ds);
 }

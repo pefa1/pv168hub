@@ -19,7 +19,6 @@ public class CustomerManagerImpl implements CustomerManager {
     private DataSource dataSource;
     private final static Logger log = LoggerFactory.getLogger(CustomerManagerImpl.class);
 
-    @Override
     public void setDataSource(DataSource ds) {
         this.dataSource = ds;
     }
