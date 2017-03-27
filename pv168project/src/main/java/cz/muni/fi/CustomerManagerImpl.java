@@ -208,7 +208,7 @@ public class CustomerManagerImpl implements CustomerManager {
         }
     }
 
-    private static Customer executeQueryForSingleCustomer(PreparedStatement st) throws SQLException, ServiceFailureException {
+    public static Customer executeQueryForSingleCustomer(PreparedStatement st) throws SQLException, ServiceFailureException {
         ResultSet rs = st.executeQuery();
         if (rs.next()) {
             Customer result = idToCustomer(rs);
@@ -222,7 +222,7 @@ public class CustomerManagerImpl implements CustomerManager {
         }
     }
 
-    private static List<Customer> executeQueryForMultipleCustomers(PreparedStatement st) throws SQLException {
+    public static List<Customer> executeQueryForMultipleCustomers(PreparedStatement st) throws SQLException {
         ResultSet rs = st.executeQuery();
         List<Customer> result = new ArrayList<>();
         while (rs.next()) {

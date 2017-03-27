@@ -12,7 +12,7 @@ public interface RentManager {
 
     void createRent(Rent rent);
 
-    void updateRent(Rent rent);
+    void updateRent(Long id, LocalDate newExpectedReturnTime);
 
     void deleteRent(Long id);
 
@@ -30,6 +30,6 @@ public interface RentManager {
 
     Customer customerOfRent(Rent rent);
 
-    LocalDate ReturnBook(Rent rent);
+    boolean ReturnBook(Rent rent);
 
 }
