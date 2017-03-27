@@ -8,8 +8,10 @@ import org.junit.Test;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Month;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -22,7 +24,7 @@ public class RentManagerImplTest {
     private CustomerManagerImpl customerManager;
     private BookManagerImpl bookManager;
     private DataSource ds;
-    //private final static LocalDate NOW = LocalDate.of(2016, Month.FEBRUARY, 29);
+    //private final static LocalDate NOW = LocalDate.of(2017, Month.MARCH, 27);
 
     private static DataSource prepareDataSource() throws SQLException {
         EmbeddedDataSource ds = new EmbeddedDataSource();
@@ -31,11 +33,15 @@ public class RentManagerImplTest {
         return ds;
     }
 
+    /*private static Clock prepareClockMock(ZonedDateTime now) {
+        return Clock.fixed(now.toInstant(), now.getZone());
+    }*/
+
     @Before
     public void setUp() throws Exception {
         rentManager = new RentManagerImpl();
         customerManager = new CustomerManagerImpl();
-        bookManager = new BookManagerImpl();
+        bookManager = new BookManagerImpl(/*prepareClockMock(NOW)*/);
         ds = prepareDataSource();
         DBUtils.executeSqlScript(ds,RentManager.class.getResource("createTables.sql"));
         rentManager.setDataSource(ds);
@@ -88,7 +94,7 @@ public class RentManagerImplTest {
                 .customer(null)
                 .book(null)
                 .rentTime(null)
-                .expectedReturnTime(LocalDate.of(2017, Month.APRIL, 22))
+                .expectedReturnTime(LocalDate.of(2017, Month.APRIL, 27))
                 .returnTime(null);
     }
 
@@ -200,52 +206,16 @@ public class RentManagerImplTest {
         Rent rent = sampleRent().customer(customer).book(book).build();
         rentManager.createRent(rent);
 
-        rent.setExpectedReturnTime(LocalDate.of(2017, Month.MAY, 22));
-        rentManager.updateRent(rent);
+        rent.setExpectedReturnTime(LocalDate.of(2017, Month.MAY, 27));
+        rentManager.updateRent(rent.getId(), rent.getExpectedReturnTime());
 
         assertThat(rentManager.getRentById(rent.getId())).isEqualToComparingFieldByField(rent);
         assertThat(rentManager.getRentById(rent.getId()).getExpectedReturnTime()).isAfterOrEqualTo(rentManager.getRentById(rent.getId()).getExpectedReturnTime());
-
-        rent.setReturnTime(LocalDate.of(2017, Month.MAY, 5));
-        rentManager.updateRent(rent);
-
-        assertThat(rentManager.getRentById(rent.getId())).isEqualToComparingFieldByField(rent);
-        assertThat(rentManager.getRentById(rent.getId()).getReturnTime()).isBeforeOrEqualTo(rentManager.getRentById(rent.getId()).getExpectedReturnTime());
-
-        rent.setReturnTime(LocalDate.of(2017, Month.MAY, 28));
-        rentManager.updateRent(rent);
-
-        assertThat(rentManager.getRentById(rent.getId())).isEqualToComparingFieldByField(rent);
-        assertThat(rentManager.getRentById(rent.getId()).getReturnTime()).isAfterOrEqualTo(rentManager.getRentById(rent.getId()).getExpectedReturnTime());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void updateNullRent() throws Exception {
-        rentManager.updateRent(null);
-    }
-
-    @Test
-    public void updateRentOnExisting() throws Exception {
-        Customer customer = sampleCustomer1().build();
-        Customer customer1 = sampleCustomer2().build();
-        customerManager.createCustomer(customer);
-
-        Book book = sampleBookBuilder().id(null).build();
-        Book book1 = sample2BookBuilder().id(null).build();
-        bookManager.createBook(book);
-
-        Rent rent = sampleRent().customer(customer).book(book).build();
-        Rent rent1 = sampleRent().customer(customer1).book(book1).build();
-
-        rentManager.createRent(rent);
-        rentManager.createRent(rent1);
-
-        try {
-            rent1.setBook(book);
-            rentManager.updateRent(rent1);
-        } catch (IllegalArgumentException ex) {
-            ex.printStackTrace();
-        }
+        rentManager.updateRent(null, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
