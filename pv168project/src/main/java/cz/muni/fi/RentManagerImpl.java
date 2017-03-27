@@ -1,6 +1,4 @@
-package cz.muni.fi.RentManager;
-
-import cz.muni.fi.Rent;
+package cz.muni.fi;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -34,12 +32,12 @@ public class RentManagerImpl implements RentManager {
     }
 
     @Override
-    public void deleteRent(long id) {
+    public void deleteRent(Long id) {
 
     }
 
     @Override
-    public Rent getRentById(long id) {
+    public Rent getRentById(Long id) {
         return null;
     }
 
@@ -49,12 +47,12 @@ public class RentManagerImpl implements RentManager {
     }
 
     @Override
-    public List<Rent> listRentsByCustomer(long customer_id) {
+    public List<Rent> listRentsByCustomer(Long customer_id) {
         return null;
     }
 
     @Override
-    public List<Rent> listRentsByBook(long book_id) {
+    public List<Rent> listRentsByBook(Long book_id) {
         return null;
     }
 }
