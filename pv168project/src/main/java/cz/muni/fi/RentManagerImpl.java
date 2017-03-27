@@ -4,9 +4,11 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,7 +64,7 @@ public class RentManagerImpl implements RentManager {
             throw new IllegalEntityException("expected return date should be after present");
         }
 
-        if(!checkBookIsAvailabel(rent.getBook().getId())){
+        if(!checkBookIsAvailable(rent.getBook().getId())){
             throw new IllegalArgumentException("book is not available");
         }
 
@@ -83,10 +85,10 @@ public class RentManagerImpl implements RentManager {
 
 
             int count = st.executeUpdate();
-            DBUtils.checkUpdatesCount(count, book, true);
+            DBUtils.checkUpdatesCount(count, rent, true);
 
             Long id = DBUtils.getId(st.getGeneratedKeys());
-            book.setId(id);
+            rent.setId(id);
             conn.commit();
 
             st = conn.prepareStatement(
@@ -120,6 +122,67 @@ public class RentManagerImpl implements RentManager {
     }
 
     @Override
+    public Book bookOfRent(Rent rent) {
+        checkDataSource();
+        if (rent == null) {
+            throw new IllegalArgumentException("rent is null");
+        }
+        if (rent.getId() == null) {
+            throw new IllegalEntityException("rent id is null");
+        }
+        Connection conn = null;
+        PreparedStatement st = null;
+        try {
+            conn = dataSource.getConnection();
+            st = conn.prepareStatement(
+                    "SELECT Book.id, title, author " +
+                            "FROM Book JOIN Rent ON Book.id = Rent.bookId " +
+                            "WHERE Rent.id = ?");
+            st.setLong(1, rent.getId());
+            return BookManagerImpl.executeQueryForSingleBook(st);
+        } catch (SQLException ex) {
+            String msg = "Error when getting book of specific rent " + rent;
+            logger.log(Level.SEVERE, msg, ex);
+            throw new ServiceFailureException(msg, ex);
+        } finally {
+            DBUtils.closeQuietly(conn, st);
+        }
+    }
+
+    @Override
+    public Customer customerOfRent(Rent rent) {
+        checkDataSource();
+        if (rent == null) {
+            throw new IllegalArgumentException("rent is null");
+        }
+        if (rent.getId() == null) {
+            throw new IllegalEntityException("rent id is null");
+        }
+        Connection conn = null;
+        PreparedStatement st = null;
+        try {
+            conn = dataSource.getConnection();
+            st = conn.prepareStatement(
+                    "SELECT Book.id, title, author " +
+                            "FROM Book JOIN Rent ON Book.id = Rent.bookId " +
+                            "WHERE Rent.id = ?");
+            st.setLong(1, rent.getId());
+            return CustomerManagerImpl.executeQueryForSingleCustomer(st);
+        } catch (SQLException ex) {
+            String msg = "Error when getting book of specific rent " + rent;
+            logger.log(Level.SEVERE, msg, ex);
+            throw new ServiceFailureException(msg, ex);
+        } finally {
+            DBUtils.closeQuietly(conn, st);
+        }
+    }
+
+    @Override
+    public LocalDate ReturnBook(Rent rent) {
+        return null;
+    }
+
+    @Override
     public void deleteRent(Long id) {
 
     }
@@ -144,9 +207,74 @@ public class RentManagerImpl implements RentManager {
         return null;
     }
 
-    private boolean checkBookIsAvailabel(Long bookId){
-        return false;
+    private boolean checkBookIsAvailable(Long bookId){
+        checkDataSource();
+
+        if (bookId == null) {
+            return false;
+        }
+        boolean isAvailable = true;
+
+        Connection conn = null;
+        PreparedStatement st = null;
+        try {
+            conn = dataSource.getConnection();
+
+            st = conn.prepareStatement(
+                    "SELECT id, rentTime, expectedReturnTime, returnTime FROM Rent WHERE bookId = ?");
+            st.setLong(1, bookId);
+
+            List<Rent> rents =  executeQueryForMultipleRents(st);
+
+            for(Rent rent : rents){
+                if(rent.getRentTime() == null){
+                    isAvailable = false;
+                }
+            }
+
+        } catch (SQLException ex) {
+            String msg = "Error when getting book with id = " + bookId + " from DB";
+            logger.log(Level.SEVERE, msg, ex);
+            throw new ServiceFailureException(msg, ex);
+        } finally {
+            DBUtils.closeQuietly(conn, st);
+        }
+        return isAvailable;
     }
+
+
+    static Rent executeQueryForSingleRent(PreparedStatement st) throws SQLException, ServiceFailureException {
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) {
+            Rent result = rowToRent(rs);
+            if (rs.next()) {
+                throw new ServiceFailureException(
+                        "Internal integrity error: more rents with the same id found!");
+            }
+            return result;
+        } else {
+            return null;
+        }
+    }
+
+    static List<Rent> executeQueryForMultipleRents(PreparedStatement st) throws SQLException {
+        ResultSet rs = st.executeQuery();
+        List<Rent> result = new ArrayList<Rent>();
+        while (rs.next()) {
+            result.add(rowToRent(rs));
+        }
+        return result;
+    }
+
+    static private Rent rowToRent(ResultSet rs) throws SQLException {
+        Rent result = new Rent();
+        result.setId(rs.getLong("id"));
+        result.setExpectedReturnTime(toLocalDate(rs.getDate("expectedReturnTime")));
+        result.setRentTime(toLocalDate(rs.getDate("rentTime")));
+        result.setReturnTime(toLocalDate(rs.getDate("returnTime")));
+        return result;
+    }
+
 
     private static Date toSqlDate(LocalDate localDate) {
         return localDate == null ? null : Date.valueOf(localDate);

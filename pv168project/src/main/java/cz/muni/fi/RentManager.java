@@ -2,6 +2,7 @@ package cz.muni.fi;
 
 
 import javax.sql.DataSource;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -24,4 +25,11 @@ public interface RentManager {
     List<Rent> listRentsByBook(Long book_id);
 
     void setDataSource(DataSource ds);
+
+    Book bookOfRent(Rent rent);
+
+    Customer customerOfRent(Rent rent);
+
+    LocalDate ReturnBook(Rent rent);
+
 }
