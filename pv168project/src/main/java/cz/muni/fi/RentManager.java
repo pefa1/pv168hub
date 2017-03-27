@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface RentManager {
 
-    Rent createRent(Rent rent);
+    void createRent(Rent rent);
 
     void updateRent(Rent rent);
 
