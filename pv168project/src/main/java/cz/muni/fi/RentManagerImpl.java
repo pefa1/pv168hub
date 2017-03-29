@@ -119,7 +119,8 @@ public class RentManagerImpl implements RentManager {
             st.setLong(4, bookOfRent(result).getId());
             st.setLong(5, customerOfRent(result).getId());
             st.setLong(6, id);
-
+            int count = st.executeUpdate();
+            DBUtils.checkUpdatesCount(count, result, false);
             conn.commit();
         } catch (SQLException ex) {
             String msg = "Error when updating rent in the db";
@@ -442,7 +443,7 @@ public class RentManagerImpl implements RentManager {
     }
 
 
-    static Rent executeQueryForSingleRent(PreparedStatement st) throws SQLException, ServiceFailureException {
+    public static Rent executeQueryForSingleRent(PreparedStatement st) throws SQLException, ServiceFailureException {
         ResultSet rs = st.executeQuery();
         if (rs.next()) {
             Rent result = rowToRent(rs);
@@ -456,7 +457,7 @@ public class RentManagerImpl implements RentManager {
         }
     }
 
-    static List<Rent> executeQueryForMultipleRents(PreparedStatement st) throws SQLException {
+    public static List<Rent> executeQueryForMultipleRents(PreparedStatement st) throws SQLException {
         ResultSet rs = st.executeQuery();
         List<Rent> result = new ArrayList<Rent>();
         while (rs.next()) {

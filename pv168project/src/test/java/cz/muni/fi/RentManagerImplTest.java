@@ -195,6 +195,11 @@ public class RentManagerImplTest {
         rentManager.getRentById(-1L);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void updateNullRent() throws Exception {
+        rentManager.updateRent(null, null);
+    }
+
     @Test
     public void updateRent() throws Exception {
         Customer customer = sampleCustomer1().build();
@@ -212,11 +217,6 @@ public class RentManagerImplTest {
 
         assertThat(rentsdf).isEqualToComparingFieldByField(rent);
         assertThat(rentManager.getRentById(rent.getId()).getExpectedReturnTime()).isAfterOrEqualTo(rentManager.getRentById(rent.getId()).getExpectedReturnTime());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void updateNullRent() throws Exception {
-        rentManager.updateRent(null, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
