@@ -103,7 +103,7 @@ public class CustomerManagerImpl implements CustomerManager {
                 }
             }
         } catch (SQLException e) {
-            log.error("cannot update books", e);
+            log.error("cannot update customer", e);
             throw new IllegalArgumentException("database update failed", e);
         }
     }
@@ -166,7 +166,7 @@ public class CustomerManagerImpl implements CustomerManager {
                 return executeQueryForMultipleCustomers(st);
             }
         } catch (SQLException e) {
-            log.error("cannot select books", e);
+            log.error("cannot select customers", e);
             throw new SQLException("database select failed", e);
         }
     }
@@ -214,7 +214,7 @@ public class CustomerManagerImpl implements CustomerManager {
             Customer result = idToCustomer(rs);
             if (rs.next()) {
                 throw new ServiceFailureException(
-                        "Internal integrity error: more bodies with the same id found!");
+                        "Internal integrity error: more customers with the same id found!");
             }
             return result;
         } else {

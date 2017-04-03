@@ -2,8 +2,6 @@ package cz.muni.fi;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
-import cz.muni.fi.Book;
-import cz.muni.fi.BookManagerImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +15,7 @@ import org.apache.derby.jdbc.EmbeddedDataSource;
  */
 public class BookManagerImplTest {
 
-    BookManagerImpl bookManager;
+    private BookManagerImpl bookManager;
     private javax.sql.DataSource ds;
 
     private static DataSource prepareDataSource() throws SQLException {

@@ -205,7 +205,7 @@ public class BookManagerImpl implements BookManager {
         }
     }
 
-    static Book executeQueryForSingleBook(PreparedStatement st) throws SQLException, ServiceFailureException {
+    public static Book executeQueryForSingleBook(PreparedStatement st) throws SQLException, ServiceFailureException {
         ResultSet rs = st.executeQuery();
         if (rs.next()) {
             Book result = rowToBook(rs);
@@ -219,7 +219,7 @@ public class BookManagerImpl implements BookManager {
         }
     }
 
-    static List<Book> executeQueryForMultipleBooks(PreparedStatement st) throws SQLException {
+    public static List<Book> executeQueryForMultipleBooks(PreparedStatement st) throws SQLException {
         ResultSet rs = st.executeQuery();
         List<Book> result = new ArrayList<Book>();
         while (rs.next()) {
