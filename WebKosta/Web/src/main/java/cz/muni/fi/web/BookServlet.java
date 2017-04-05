@@ -49,7 +49,7 @@ public class BookServlet extends HttpServlet {
                 String author = request.getParameter("author");
                 //form data validity check
                 if (title == null || title.length() == 0 || author == null || author.length() == 0) {
-                    request.setAttribute("Error", "Values missing!");
+                    request.setAttribute("chyba", "Values missing!");
                     log.debug("form data invalid");
                     showBooksList(request, response);
                     return;
