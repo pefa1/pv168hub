@@ -15,7 +15,7 @@
       <c:out value="${chyba}"/>
     </div>
   </c:if>
-  <form action="${pageContext.request.contextPath}/book/postUpdate?id=${book.id}" method="post">
+  <form action="${pageContext.request.contextPath}/sth/postUpdateBook?id=${book.id}" method="post">
     <table>
       <tr>
         <th>Title of the book:</th>

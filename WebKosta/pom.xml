@@ -15,7 +15,7 @@
 
     <groupId>cz.muni.fi</groupId>
     <artifactId>WebKosta</artifactId>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <name>Books parent project</name>
     <packaging>pom</packaging>
 
