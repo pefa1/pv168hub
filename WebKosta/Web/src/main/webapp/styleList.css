@@ -1,0 +1,63 @@
+body, html {
+    margin: 10px;
+}
+
+body {
+    background: #272F32;
+    color: #9DBDC6;
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
+table, h2, form {
+    margin-left: 20px;
+}
+
+table, th, td {
+    border: 1px solid #DAEAEF;
+}
+
+th, td {
+    background: #9DBDC6;
+    color: #272F32;
+    text-align: center;
+}
+
+.submit-button {
+    position: relative;
+    margin-left: 50px;
+    margin-top: 15px;
+    border-radius: 40%;
+    background: #DAEAEF;
+}
+
+.submit-button:hover {
+    background: #fff;
+}
+
+h2 {
+    color: #fff;
+}
+
+.chyba {
+    border: solid 1px red;
+    background: yellow;
+    padding: 10px;
+    margin-left: 25px;
+    margin-bottom: 20px;
+}
+
+.submit-button-table {
+    margin: auto;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.submit-button-table:hover {
+    background: #DAEAEF;
+}
+
+.inside-form {
+    margin-left: 0;
+    margin-bottom: 0;
+}

@@ -1,6 +1,9 @@
 <%@page contentType="text/html;charset=utf-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
+<head>
+  <!---<link rel="stylesheet" href="${pageContext.request.contextPath}/styleList.css"/>-->
+</head>
 <body>
 
 <table border="1">
@@ -81,6 +84,75 @@
       <th>Email:</th>
       <td><input type="text" name="email" value="<c:out value='${param.email}'/>"/></td>
     </tr>
+  </table>
+  <input class="submit-button" type="Submit" value="Zadat" />
+</form>
+
+<table>
+  <thead>
+  <tr>
+    <th>Id</th>
+    <th>Customer id</th>
+    <th>Book id</th>
+    <th>Start time</th>
+    <th>Expected return time</th>
+  </tr>
+  </thead>
+  <c:forEach items="${rents}" var="rent">
+    <tr>
+      <td><c:out value="${rent.id}"/></td>
+      <td><c:out value="${rent.customer.id}"/></td>
+      <td><c:out value="${rent.book.id}"/></td>
+      <td><c:out value="${rent.rentTime}"/></td>
+      <td><c:out value="${rent.expectedReturnTime}"/></td>
+      <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/deleteRent?id=${rent.id}">
+        <input class="submit-button-table" type="submit" value="Smazat"></form></td>
+      <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/updateRent?id=${rent.id}&expectedReturnTime=${rent.expectedReturnTime}
+            &returnTime=${rent.returnTime}"><input class="submit-button-table" type="submit" value="Update"></form> </td>
+      <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/returnBook?id=${rent.id}">
+        <input class="submit-button-table" type="submit" value="Return"></form></td>
+    </tr>
+  </c:forEach>
+</table>
+
+<h2>Create new rent</h2>
+<c:if test="${not empty chyba2}">
+  <div class="chyba">
+    <c:out value="${chyba2}"/>
+  </div>
+</c:if>
+
+<form action="${pageContext.request.contextPath}/sth/addRent" method="post">
+  <table>
+    <tr>
+      <th>Book</th>
+      <td>
+        <select name="books-option" size="1">
+          <c:forEach items="${books}" var="book">
+            <option value="${book.id}"><c:out value="${book.id}"/></option>
+          </c:forEach>
+        </select>
+      </td>
+    </tr>
+
+    <tr>
+      <th>Customer</th>
+      <td>
+        <select name="customers-option" size="1">
+          <c:forEach items="${customers}" var="customer">
+            <option value="${customer.id}"><c:out value="${customer.id}"/></option>
+          </c:forEach>
+        </select>
+      </td>
+    </tr>
+
+    <tr>
+      <th>Expected Retrun Time</th>
+      <td>
+        <input type="text" name="expectedReturnTime" value="<c:out value='${param.expectedReturnTime}'/>"/>
+      </td>
+    </tr>
+
   </table>
   <input class="submit-button" type="Submit" value="Zadat" />
 </form>

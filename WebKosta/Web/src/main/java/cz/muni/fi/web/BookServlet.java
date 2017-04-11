@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 /**
  * Created by Pepa on 03.04.2017.
@@ -22,7 +23,8 @@ import java.sql.SQLException;
 public class BookServlet extends HttpServlet {
 
     private static final String LIST_JSP = "/list.jsp";
-    private static final String UPDATE_JSP = "/update.jsp";
+    private static final String UPDATE_JSP = "/updateBook.jsp";
+    private static final String UPDATE_CUSTOMER_JSP = "/updateCustomer.jsp";
     public static final String URL_MAPPING = "/sth";
 
     private final static Logger log = LoggerFactory.getLogger(BookServlet.class);
@@ -72,20 +74,85 @@ public class BookServlet extends HttpServlet {
                 deleteCustomer(request, response);
                 break;
             case "/updateCustomer":
-                //TODO
-                return;
+                updateCustomer(request, response);
+                break;
+            case "/postUpdateCustomer":
+                try {
+                    postUpdateCustomer(request, response);
+                } catch (ValidationException | SQLException e) {
+                    e.printStackTrace();
+                }
+                break;
             case "/addRent":
-                addRent(request, response);
+                try {
+                    addRent(request, response);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 break;
             case "/deleteRent":
                 deleteRent(request, response);
                 break;
             case "/updateRent":
+                updateRent(request, response);
+                break;
+            case "/postUpdateRent":
+                postUpdateRent(request, response);
+                break;
+            case "/returnBook":
                 //TODO
-                return;
+                break;
             default:
                 log.error("Unknown action " + action);
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Unknown action " + action);
+        }
+    }
+
+    private void postUpdateRent(HttpServletRequest request, HttpServletResponse response) {
+    }
+
+    private void updateRent(HttpServletRequest request, HttpServletResponse response) {
+    }
+
+    private void postUpdateCustomer(HttpServletRequest request, HttpServletResponse response) throws ValidationException, SQLException, IOException, ServletException {
+        try {
+            int n = 0;
+            Customer updatedCustomer = new Customer();
+            updatedCustomer.setId(Long.valueOf(request.getParameter("id")));
+            updatedCustomer.setFullName(String.valueOf(request.getParameter("fullName")));
+            updatedCustomer.setEmail(String.valueOf(request.getParameter("email")));
+
+            for (Customer customer : getCustomerManager().listAllCustomers()) {
+                if (customer.getEmail().equals(updatedCustomer.getEmail())) {
+                    n++;
+                }
+            }
+
+            if (n<1) {
+                getCustomerManager().updateCustomer(updatedCustomer);
+            }
+
+            log.debug("redirecting after POST");
+            response.sendRedirect(request.getContextPath() + URL_MAPPING);
+        } catch (ServiceFailureException e) {
+            log.error("Cannot update customer", e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    private void updateCustomer(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            Customer customerForUpdate = new Customer();
+            customerForUpdate.setId(Long.valueOf(request.getParameter("id")));
+            customerForUpdate.setFullName(String.valueOf(request.getParameter("fullName")));
+            customerForUpdate.setEmail(String.valueOf(request.getParameter("email")));
+            request.setAttribute("customer", customerForUpdate);
+
+            log.debug("updating customer");
+            request.getRequestDispatcher(UPDATE_CUSTOMER_JSP).forward(request, response);
+        } catch (ServiceFailureException e) {
+            log.error("Cannot update customer", e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -138,41 +205,48 @@ public class BookServlet extends HttpServlet {
         }*/
     }
 
-    private void addRent(HttpServletRequest request, HttpServletResponse response) {
-        /*//getting POST parameters from form
-        String fullName = request.getParameter("fullName");
-        String email = request.getParameter("email");
+    private void addRent(HttpServletRequest request, HttpServletResponse response) throws ServletException, SQLException, IOException {
+        //getting POST parameters from form
+        String customerId = request.getParameter("customers-option");
+        String bookId = request.getParameter("books-option");
+        String expectedReturnTime = request.getParameter("expectedReturnTime");
         //form data validity check
-        if (fullName == null || fullName.length() == 0 || email == null || email.length() == 0) {
-            request.setAttribute("chyba", "Je nutné vyplnit všechny hodnoty v customerovi !");
+        if (expectedReturnTime == null || expectedReturnTime.length() == 0) {
+            request.setAttribute("chyba2", "Je nutné vyplnit začiatok rentu !");
             log.debug("form data invalid");
             showList(request, response);
             return;
         }
+        LocalDate ert = LocalDate.parse(expectedReturnTime);
+        Long cId = Long.parseLong(customerId);
+        Long bId = Long.parseLong(bookId);
+        Customer customer = getCustomerManager().getCustomerById(cId);
+        Book book = getBookManager().getBookById(bId);
         //form data processing - storing to database
         try {
-            Customer customer = new Customer();
-            customer.setId(null);
-            customer.setFullName(fullName);
-            customer.setEmail(email);
-            getCustomerManager().createCustomer(customer);
+            Rent rent = new Rent();
+            rent.setId(null);
+            rent.setCustomer(customer);
+            rent.setBook(book);
+            rent.setExpectedReturnTime(ert);
+            getRentManager().createRent(rent);
             //redirect-after-POST protects from multiple submission
             log.debug("redirecting after POST");
             response.sendRedirect(request.getContextPath()+URL_MAPPING);
         } catch (IllegalArgumentException e) {
             log.error("Cannot add customer", e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-        }*/
+        }
     }
 
     private void deleteCustomer(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             Long id = Long.valueOf(request.getParameter("id"));
-            getCustomerManager().deleteCustomer(id);
+            getRentManager().deleteRent(id);
             log.debug("redirecting after POST");
             response.sendRedirect(request.getContextPath()+URL_MAPPING);
         } catch (IllegalArgumentException e) {
-            log.error("Cannot delete customer", e);
+            log.error("Cannot delete rent", e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
@@ -271,4 +345,9 @@ public class BookServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
+
+    private RentManager getRentManager() {
+        return (RentManager) getServletContext().getAttribute("rentManager");
+    }
+
 }
