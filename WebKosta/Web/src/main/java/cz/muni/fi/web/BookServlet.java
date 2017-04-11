@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 
 /**
@@ -100,7 +101,7 @@ public class BookServlet extends HttpServlet {
                 postUpdateRent(request, response);
                 break;
             case "/returnBook":
-                //TODO
+                returnBook(request, response);
                 break;
             default:
                 log.error("Unknown action " + action);
@@ -112,6 +113,20 @@ public class BookServlet extends HttpServlet {
     }
 
     private void updateRent(HttpServletRequest request, HttpServletResponse response) {
+
+    }
+
+
+    private void returnBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            Long id = Long.valueOf(request.getParameter("id"));
+            getRentManager().ReturnBook(getRentManager().getRentById(id));
+            log.debug("redirecting after POST");
+            response.sendRedirect(request.getContextPath()+URL_MAPPING);
+        } catch (IllegalArgumentException e) {
+            log.error("Cannot return book", e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
     private void postUpdateCustomer(HttpServletRequest request, HttpServletResponse response) throws ValidationException, SQLException, IOException, ServletException {
@@ -193,16 +208,16 @@ public class BookServlet extends HttpServlet {
         }
     }
 
-    private void deleteRent(HttpServletRequest request, HttpServletResponse response) {
-        /*try {
+    private void deleteRent(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
             Long id = Long.valueOf(request.getParameter("id"));
-            getCustomerManager().deleteCustomer(id);
+            getRentManager().deleteRent(id);
             log.debug("redirecting after POST");
             response.sendRedirect(request.getContextPath()+URL_MAPPING);
         } catch (IllegalArgumentException e) {
-            log.error("Cannot delete customer", e);
+            log.error("Cannot delete rent", e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-        }*/
+        }
     }
 
     private void addRent(HttpServletRequest request, HttpServletResponse response) throws ServletException, SQLException, IOException {
@@ -217,7 +232,15 @@ public class BookServlet extends HttpServlet {
             showList(request, response);
             return;
         }
-        LocalDate ert = LocalDate.parse(expectedReturnTime);
+        LocalDate ert = null;
+        try{
+             ert = LocalDate.parse(expectedReturnTime);
+        } catch (DateTimeException e){
+            request.setAttribute("chyba2", e.getMessage());
+            log.debug("form data invalid");
+            showList(request, response);
+        }
+
         Long cId = Long.parseLong(customerId);
         Long bId = Long.parseLong(bookId);
         Customer customer = getCustomerManager().getCustomerById(cId);
@@ -232,10 +255,15 @@ public class BookServlet extends HttpServlet {
             getRentManager().createRent(rent);
             //redirect-after-POST protects from multiple submission
             log.debug("redirecting after POST");
-            response.sendRedirect(request.getContextPath()+URL_MAPPING);
+            response.sendRedirect(request.getContextPath() + URL_MAPPING);
+        } catch (IllegalEntityException e) {
+            request.setAttribute("chyba2", e.getMessage());
+            log.debug("form data invalid");
+            showList(request, response);
         } catch (IllegalArgumentException e) {
-            log.error("Cannot add customer", e);
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            request.setAttribute("chyba2", e.getMessage());
+            log.debug("form data invalid");
+            showList(request, response);
         }
     }
 
@@ -339,6 +367,7 @@ public class BookServlet extends HttpServlet {
             log.debug("showing table of books and customers");
             request.setAttribute("books", getBookManager().listAllBooks());
             request.setAttribute("customers", getCustomerManager().listAllCustomers());
+            request.setAttribute("rents", getRentManager().listAllRents());
             request.getRequestDispatcher(LIST_JSP).forward(request, response);
         } catch (IllegalArgumentException e) {
             log.error("Cannot show books and customers", e);

@@ -202,7 +202,7 @@ public class RentManagerImpl implements RentManager {
 
             conn.setAutoCommit(false);
             st = conn.prepareStatement(
-                    "Select rentTime, expectedReturnTime, returnTime FROM Rent WHERE id = ?");
+                    "Select id, rentTime, expectedReturnTime, returnTime FROM Rent WHERE id = ?");
             st.setLong(1, rent.getId());
             Rent result = executeQueryForSingleRent(st);
 

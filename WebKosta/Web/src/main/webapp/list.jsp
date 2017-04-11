@@ -85,10 +85,10 @@
       <td><input type="text" name="email" value="<c:out value='${param.email}'/>"/></td>
     </tr>
   </table>
-  <input class="submit-button" type="Submit" value="Zadat" />
+  <input class="submit-button" type="Submit" value="Submit" />
 </form>
 
-<table>
+<table border="1">
   <thead>
   <tr>
     <th>Id</th>
@@ -96,6 +96,7 @@
     <th>Book id</th>
     <th>Start time</th>
     <th>Expected return time</th>
+    <th>Return time</th>
   </tr>
   </thead>
   <c:forEach items="${rents}" var="rent">
@@ -105,6 +106,11 @@
       <td><c:out value="${rent.book.id}"/></td>
       <td><c:out value="${rent.rentTime}"/></td>
       <td><c:out value="${rent.expectedReturnTime}"/></td>
+      <td>
+      <c:if test="${not empty rent.returnTime}">
+        <c:out value="${rent.returnTime}"/>
+      </c:if>
+      </td>
       <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/deleteRent?id=${rent.id}">
         <input class="submit-button-table" type="submit" value="Smazat"></form></td>
       <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/updateRent?id=${rent.id}&expectedReturnTime=${rent.expectedReturnTime}
@@ -117,7 +123,7 @@
 
 <h2>Create new rent</h2>
 <c:if test="${not empty chyba2}">
-  <div class="chyba">
+  <div style="border: solid 1px red; background-color: yellow; padding: 10px; /*margin-left: 20px*/">
     <c:out value="${chyba2}"/>
   </div>
 </c:if>
@@ -154,7 +160,7 @@
     </tr>
 
   </table>
-  <input class="submit-button" type="Submit" value="Zadat" />
+  <input class="submit-button" type="Submit" value="Submit" />
 </form>
 
 </body>
