@@ -1,33 +1,7 @@
 ----------------------------------------------------------------
-Tue Apr 04 23:00:15 CEST 2017:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-015b-3ac4-9b3e-00000df2e008 
-on database directory memory:C:\Users\Pepa\Documents\GitHub\pv168hub\pv168project\bookmgr-test with class loader sun.misc.Launcher$AppClassLoader@15db9742 
-Loaded from file:/C:/Users/Pepa/.m2/repository/org/apache/derby/derby/10.11.1.1/derby-10.11.1.1.jar
-java.vendor=Oracle Corporation
-java.runtime.version=1.8.0_60-b27
-user.dir=C:\Users\Pepa\Documents\GitHub\pv168hub\pv168project
-os.name=Windows 10
-os.arch=amd64
-os.version=10.0
-derby.system.home=null
-Database Class Loader started - derby.database.classpath=''
-----------------------------------------------------------------
-Tue Apr 04 23:00:16 CEST 2017:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance 19b80240-015b-3ac4-9b3e-00000df2e008 
-on database directory memory:C:\Users\Pepa\Documents\GitHub\pv168hub\pv168project\customermgr-test with class loader sun.misc.Launcher$AppClassLoader@15db9742 
-Loaded from file:/C:/Users/Pepa/.m2/repository/org/apache/derby/derby/10.11.1.1/derby-10.11.1.1.jar
-java.vendor=Oracle Corporation
-java.runtime.version=1.8.0_60-b27
-user.dir=C:\Users\Pepa\Documents\GitHub\pv168hub\pv168project
-os.name=Windows 10
-os.arch=amd64
-os.version=10.0
-derby.system.home=null
-Database Class Loader started - derby.database.classpath=''
-----------------------------------------------------------------
-Tue Apr 04 23:00:17 CEST 2017:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance 0ac4449f-015b-3ac4-9b3e-00000df2e008 
-on database directory memory:C:\Users\Pepa\Documents\GitHub\pv168hub\pv168project\rentmgr-test with class loader sun.misc.Launcher$AppClassLoader@15db9742 
+Tue Apr 11 19:14:05 CEST 2017:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-015b-5e02-1016-00000da14530 
+on database directory memory:C:\Users\Pepa\Documents\GitHub\pv168hub\pv168project\rentmgr-test with class loader sun.misc.Launcher$AppClassLoader@14dad5dc 
 Loaded from file:/C:/Users/Pepa/.m2/repository/org/apache/derby/derby/10.11.1.1/derby-10.11.1.1.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_60-b27

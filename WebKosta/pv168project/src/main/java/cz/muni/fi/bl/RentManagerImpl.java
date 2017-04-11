@@ -427,8 +427,9 @@ public class RentManagerImpl implements RentManager {
             List<Rent> rents =  executeQueryForMultipleRents(st);
 
             for(Rent rent : rents){
-                if(rent.getRentTime() == null){
+                if(rent.getReturnTime() == null){
                     isAvailable = false;
+                    break;
                 }
             }
 
