@@ -1,10 +1,6 @@
 package cz.muni.fi.web;
 
-import cz.muni.fi.bl.BookManager;
-import cz.muni.fi.bl.BookManagerImpl;
-import cz.muni.fi.bl.CustomerManagerImpl;
-import cz.muni.fi.bl.DBUtils;
-import cz.muni.fi.bl.Main;
+import cz.muni.fi.bl.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +9,6 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import javax.sql.DataSource;
-import java.sql.SQLException;
 
 @WebListener
 public class StartListener implements ServletContextListener {
@@ -23,7 +18,7 @@ public class StartListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent ev) {
-        System.out.println("aplikace inicializována");
+        System.out.println("aplikace inicializovï¿½na");
         ServletContext servletContext = ev.getServletContext();
         DataSource dataSource = Main.createMemoryDatabase();
 
@@ -35,12 +30,15 @@ public class StartListener implements ServletContextListener {
 
         bookManager.setDataSource(dataSource);
         servletContext.setAttribute("bookManager", bookManager);
+        RentManagerImpl rentManager = new RentManagerImpl();
+        rentManager.setDataSource(dataSource);
+        servletContext.setAttribute("rentManager", rentManager);
 
-        log.info("vytvoøeny manažery a uloženy do atributù servletContextu");
+        log.info("vytvoï¿½eny manaï¿½ery a uloï¿½eny do atributï¿½ servletContextu");
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent ev) {
-        System.out.println("aplikace konèí");
+        System.out.println("aplikace konï¿½ï¿½");
     }
 }
