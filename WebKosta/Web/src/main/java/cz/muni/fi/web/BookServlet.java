@@ -26,6 +26,7 @@ public class BookServlet extends HttpServlet {
     private static final String LIST_JSP = "/list.jsp";
     private static final String UPDATE_JSP = "/updateBook.jsp";
     private static final String UPDATE_CUSTOMER_JSP = "/updateCustomer.jsp";
+    private static final String UPDATE_RENT_JSP = "/updateRent.jsp";
     public static final String URL_MAPPING = "/sth";
 
     private final static Logger log = LoggerFactory.getLogger(BookServlet.class);
@@ -109,11 +110,31 @@ public class BookServlet extends HttpServlet {
         }
     }
 
-    private void postUpdateRent(HttpServletRequest request, HttpServletResponse response) {
+    private void postUpdateRent(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            getRentManager().updateRent(Long.valueOf(request.getParameter("id")), LocalDate.parse(request.getParameter("expectedReturnTime")));
+
+            log.debug("redirecting after POST");
+            response.sendRedirect(request.getContextPath() + URL_MAPPING);
+        } catch (ServiceFailureException e) {
+            log.error("Cannot update rent", e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
-    private void updateRent(HttpServletRequest request, HttpServletResponse response) {
+    private void updateRent(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            Rent rentForUpdate = new Rent();
+            rentForUpdate.setId(Long.valueOf(request.getParameter("id")));
+            rentForUpdate.setExpectedReturnTime(LocalDate.parse(request.getParameter("expectedReturnTime")));
+            request.setAttribute("rent", rentForUpdate);
 
+            log.debug("updating rent");
+            request.getRequestDispatcher(UPDATE_RENT_JSP).forward(request, response);
+        } catch (ServiceFailureException e) {
+            log.error("Cannot update rent", e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
 

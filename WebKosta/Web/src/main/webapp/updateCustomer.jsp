@@ -9,7 +9,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <%--<link rel="stylesheet" href="styleUpdateCustomer.css">--%>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/styleList.css"/>
 </head>
 <body>
 <h2>Updating customer</h2>
@@ -31,7 +31,7 @@
             <td><input type="text" name="email" value="<c:out value='${param.email}'/>" placeholder="${customer.email}"/></td>
         </tr>
     </table>
-    <input type="Submit" value="Submit" />
+    <input class="submit-button" type="Submit" value="Submit" />
 </form>
 
 </body>

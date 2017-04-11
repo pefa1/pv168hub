@@ -2,11 +2,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
-  <!---<link rel="stylesheet" href="${pageContext.request.contextPath}/styleList.css"/>-->
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/styleList.css"/>
 </head>
 <body>
 
-<table border="1">
+<table>
   <thead>
   <tr>
     <th>Id</th>
@@ -19,36 +19,36 @@
       <td><c:out value="${book.id}"/></td>
       <td><c:out value="${book.title}"/></td>
       <td><c:out value="${book.author}"/></td>
-      <td><form method="post" action="${pageContext.request.contextPath}/sth/deleteBook?id=${book.id}"
-                style="margin-bottom: 0;"><input type="submit" value="Delete"></form></td>
-      <td><form method="post" action="${pageContext.request.contextPath}/sth/updateBook?id=${book.id}&title=${book.title}&author=${book.author}"
-                style="margin-bottom: 0;"><input type="submit" value="Update"></form></td>
+      <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/deleteBook?id=${book.id}">
+        <input class="submit-button-table" type="submit" value="Smazat"></form></td>
+      <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/updateBook?id=${book.id}&title=${book.title}&author=${book.author}">
+        <input class="submit-button-table" type="submit" value="Update"></form></td>
     </tr>
   </c:forEach>
 </table>
 
 <h2>Create new book</h2>
 <c:if test="${not empty chyba}">
-  <div style="border: solid 1px red; background-color: yellow; padding: 10px">
+  <div class="chyba">
     <c:out value="${chyba}"/>
   </div>
 </c:if>
+
 <form action="${pageContext.request.contextPath}/sth/addBook" method="post">
   <table>
     <tr>
-      <th>Title of the book:</th>
+      <th>název knihy:</th>
       <td><input type="text" name="title" value="<c:out value='${param.title}'/>"/></td>
     </tr>
     <tr>
-      <th>Author of the book:</th>
+      <th>autor:</th>
       <td><input type="text" name="author" value="<c:out value='${param.author}'/>"/></td>
     </tr>
   </table>
-  <input type="Submit" value="Submit" />
+  <input class="submit-button" type="Submit" value="Zadat" />
 </form>
 
-
-<table border="1">
+<table>
   <thead>
   <tr>
     <th>Id</th>
@@ -61,15 +61,17 @@
       <td><c:out value="${customer.id}"/></td>
       <td><c:out value="${customer.fullName}"/></td>
       <td><c:out value="${customer.email}"/></td>
-      <td><form method="post" action="${pageContext.request.contextPath}/sth/deleteCustomer?id=${customer.id}"
-                style="margin-bottom: 0;"><input type="submit" value="Smazat"></form></td>
+      <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/deleteCustomer?id=${customer.id}">
+        <input class="submit-button-table" type="submit" value="Smazat"></form></td>
+      <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/updateCustomer?id=${customer.id}&fullName=${customer.fullName}&email=${customer.email}">
+        <input class="submit-button-table" type="submit" value="Update"></form> </td>
     </tr>
   </c:forEach>
 </table>
 
 <h2>Create new customer</h2>
 <c:if test="${not empty chyba1}">
-  <div style="border: solid 1px red; background-color: yellow; padding: 10px; /*margin-left: 20px*/">
+  <div class="chyba">
     <c:out value="${chyba1}"/>
   </div>
 </c:if>
@@ -85,10 +87,10 @@
       <td><input type="text" name="email" value="<c:out value='${param.email}'/>"/></td>
     </tr>
   </table>
-  <input class="submit-button" type="Submit" value="Submit" />
+  <input class="submit-button" type="Submit" value="Zadat" />
 </form>
 
-<table border="1">
+<table>
   <thead>
   <tr>
     <th>Id</th>
@@ -96,7 +98,7 @@
     <th>Book id</th>
     <th>Start time</th>
     <th>Expected return time</th>
-    <th>Return time</th>
+    <th>Return Time</th>
   </tr>
   </thead>
   <c:forEach items="${rents}" var="rent">
@@ -106,15 +108,11 @@
       <td><c:out value="${rent.book.id}"/></td>
       <td><c:out value="${rent.rentTime}"/></td>
       <td><c:out value="${rent.expectedReturnTime}"/></td>
-      <td>
-      <c:if test="${not empty rent.returnTime}">
-        <c:out value="${rent.returnTime}"/>
-      </c:if>
-      </td>
+      <td><c:out value="${rent.returnTime}"/></td>
       <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/deleteRent?id=${rent.id}">
         <input class="submit-button-table" type="submit" value="Smazat"></form></td>
-      <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/updateRent?id=${rent.id}&expectedReturnTime=${rent.expectedReturnTime}
-            &returnTime=${rent.returnTime}"><input class="submit-button-table" type="submit" value="Update"></form> </td>
+      <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/updateRent?id=${rent.id}&expectedReturnTime=${rent.expectedReturnTime}">
+        <input class="submit-button-table" type="submit" value="Update"></form> </td>
       <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/returnBook?id=${rent.id}">
         <input class="submit-button-table" type="submit" value="Return"></form></td>
     </tr>
@@ -123,7 +121,7 @@
 
 <h2>Create new rent</h2>
 <c:if test="${not empty chyba2}">
-  <div style="border: solid 1px red; background-color: yellow; padding: 10px; /*margin-left: 20px*/">
+  <div class="chyba">
     <c:out value="${chyba2}"/>
   </div>
 </c:if>
@@ -131,8 +129,8 @@
 <form action="${pageContext.request.contextPath}/sth/addRent" method="post">
   <table>
     <tr>
-      <th>Book</th>
-      <td>
+      <th class="remove-padding">Book</th>
+      <td class="remove-padding">
         <select name="books-option" size="1">
           <c:forEach items="${books}" var="book">
             <option value="${book.id}"><c:out value="${book.id}"/></option>
@@ -142,8 +140,8 @@
     </tr>
 
     <tr>
-      <th>Customer</th>
-      <td>
+      <th class="remove-padding">Customer</th>
+      <td class="remove-padding">
         <select name="customers-option" size="1">
           <c:forEach items="${customers}" var="customer">
             <option value="${customer.id}"><c:out value="${customer.id}"/></option>
@@ -160,7 +158,7 @@
     </tr>
 
   </table>
-  <input class="submit-button" type="Submit" value="Submit" />
+  <input class="submit-button" type="Submit" value="Zadat" />
 </form>
 
 </body>

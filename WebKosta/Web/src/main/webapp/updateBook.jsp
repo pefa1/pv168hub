@@ -9,27 +9,27 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-  <h2>Updating book</h2>
-  <c:if test="${not empty chyba}">
-    <div style="border: solid 1px red; background-color: yellow; padding: 10px">
-      <c:out value="${chyba}"/>
-    </div>
-  </c:if>
-  <form action="${pageContext.request.contextPath}/sth/postUpdateBook?id=${book.id}" method="post">
-    <table>
-      <tr>
-        <th>Title of the book:</th>
-        <td><input type="text" name="title" value="<c:out value='${param.title}'/>" placeholder="${book.title}"/></td>
-      </tr>
-      <tr>
-        <th>Author of the book:</th>
-        <td><input type="text" name="author" value="<c:out value='${param.author}'/>" placeholder="${book.author}"/></td>
-      </tr>
-    </table>
-    <input type="Submit" value="Submit" />
-  </form>
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/styleList.css"/>
 </head>
 <body>
-
+<h2>Updating book</h2>
+<c:if test="${not empty chyba}">
+  <div style="border: solid 1px red; background-color: yellow; padding: 10px">
+    <c:out value="${chyba}"/>
+  </div>
+</c:if>
+<form action="${pageContext.request.contextPath}/sth/postUpdateBook?id=${book.id}" method="post">
+  <table>
+    <tr>
+      <th>Title of the book:</th>
+      <td><input type="text" name="title" value="<c:out value='${param.title}'/>" placeholder="${book.title}"/></td>
+    </tr>
+    <tr>
+      <th>Author of the book:</th>
+      <td><input type="text" name="author" value="<c:out value='${param.author}'/>" placeholder="${book.author}"/></td>
+    </tr>
+  </table>
+  <input class="submit-button" type="Submit" value="Submit" />
+</form>
 </body>
 </html>
