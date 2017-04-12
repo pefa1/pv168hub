@@ -20,7 +20,7 @@
       <td><c:out value="${book.title}"/></td>
       <td><c:out value="${book.author}"/></td>
       <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/deleteBook?id=${book.id}">
-        <input class="submit-button-table" type="submit" value="Smazat"></form></td>
+        <input class="submit-button-table" type="submit" value="Delete"></form></td>
       <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/updateBook?id=${book.id}&title=${book.title}&author=${book.author}">
         <input class="submit-button-table" type="submit" value="Update"></form></td>
     </tr>
@@ -62,7 +62,7 @@
       <td><c:out value="${customer.fullName}"/></td>
       <td><c:out value="${customer.email}"/></td>
       <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/deleteCustomer?id=${customer.id}">
-        <input class="submit-button-table" type="submit" value="Smazat"></form></td>
+        <input class="submit-button-table" type="submit" value="Delete"></form></td>
       <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/updateCustomer?id=${customer.id}&fullName=${customer.fullName}&email=${customer.email}">
         <input class="submit-button-table" type="submit" value="Update"></form> </td>
     </tr>
@@ -87,7 +87,7 @@
       <td><input type="text" name="email" value="<c:out value='${param.email}'/>"/></td>
     </tr>
   </table>
-  <input class="submit-button" type="Submit" value="Zadat" />
+  <input class="submit-button" type="Submit" value="Submit" />
 </form>
 
 <table>
@@ -110,7 +110,7 @@
       <td><c:out value="${rent.expectedReturnTime}"/></td>
       <td><c:out value="${rent.returnTime}"/></td>
       <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/deleteRent?id=${rent.id}">
-        <input class="submit-button-table" type="submit" value="Smazat"></form></td>
+        <input class="submit-button-table" type="submit" value="Delete"></form></td>
       <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/updateRent?id=${rent.id}&expectedReturnTime=${rent.expectedReturnTime}">
         <input class="submit-button-table" type="submit" value="Update"></form> </td>
       <td><form class="inside-form" method="post" action="${pageContext.request.contextPath}/sth/returnBook?id=${rent.id}">
@@ -158,7 +158,7 @@
     </tr>
 
   </table>
-  <input class="submit-button" type="Submit" value="Zadat" />
+  <input class="submit-button" type="Submit" value="Submit" />
 </form>
 
 </body>

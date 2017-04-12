@@ -291,11 +291,11 @@ public class BookServlet extends HttpServlet {
     private void deleteCustomer(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             Long id = Long.valueOf(request.getParameter("id"));
-            getRentManager().deleteRent(id);
+            getCustomerManager().deleteCustomer(id);
             log.debug("redirecting after POST");
             response.sendRedirect(request.getContextPath()+URL_MAPPING);
         } catch (IllegalArgumentException e) {
-            log.error("Cannot delete rent", e);
+            log.error("Cannot delete customer", e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
