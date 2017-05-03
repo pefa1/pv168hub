@@ -1,5 +1,7 @@
 package cz.muni.fi.bl;
 
+import org.slf4j.LoggerFactory;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Date;
@@ -19,29 +21,34 @@ import java.util.logging.Logger;
 public class RentManagerImpl implements RentManager {
 
     private DataSource dataSource;
-    private static final Logger logger = Logger.getLogger(
-            CustomerManagerImpl.class.getName());
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(RentManagerImpl.class);
 
     public void setDataSource(DataSource ds) {
         this.dataSource = ds;
     }
 
     private void checkDataSource() {
+        logger.debug("Checking data source");
         if (dataSource == null) {
+            logger.error("Data source is not set");
             throw new IllegalStateException("DataSource is not set");
         }
+        logger.debug("Data source is OK");
     }
 
     @Override
     public void createRent(Rent rent) {
+        logger.debug("Creating rent...");
         checkDataSource();
         validate(rent);
 
         if(rent.getExpectedReturnTime() == null || !LocalDate.now().isBefore(rent.getExpectedReturnTime())){
+            logger.error("Expected return date should be after present");
             throw new IllegalEntityException("expected return date should be after present");
         }
 
         if(!checkBookIsAvailable(rent.getBook().getId())){
+            logger.error("Book is not available");
             throw new IllegalArgumentException("book is not available");
         }
 
@@ -75,27 +82,32 @@ public class RentManagerImpl implements RentManager {
             conn.commit();
         } catch (SQLException ex) {
             String msg = "Error when creating rent";
-            logger.log(Level.SEVERE, msg, ex);
+            logger.error(msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
         }
+        logger.debug("Rent created successfully");
     }
 
     @Override
     public void updateRent(Long id, LocalDate newExpectedReturnTime) {
+        logger.debug("Updating rent...");
         checkDataSource();
 
         if (id == null) {
+            logger.error("Rent id is null");
             throw new IllegalArgumentException("rent id is null");
         }
 
         if (newExpectedReturnTime == null) {
+            logger.error("Expected return time is null");
             throw new IllegalArgumentException("expected return time is null");
         }
 
         if (newExpectedReturnTime.isBefore(LocalDate.now())) {
+            logger.error("Expected return time has to be in future");
             throw new IllegalArgumentException("expected return time has to be in future");
         }
 
@@ -124,21 +136,25 @@ public class RentManagerImpl implements RentManager {
             conn.commit();
         } catch (SQLException ex) {
             String msg = "Error when updating rent in the db";
-            logger.log(Level.SEVERE, msg, ex);
+            logger.error(msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
         }
+        logger.debug("Rent updated successfully");
     }
 
     @Override
     public Book bookOfRent(Rent rent) {
+        logger.debug("Book of rent...");
         checkDataSource();
         if (rent == null) {
+            logger.error("Rent is null");
             throw new IllegalArgumentException("rent is null");
         }
         if (rent.getId() == null) {
+            logger.error("Rent id is null");
             throw new IllegalEntityException("rent id is null");
         }
         Connection conn = null;
@@ -155,7 +171,7 @@ public class RentManagerImpl implements RentManager {
             return BookManagerImpl.executeQueryForSingleBook(st);
         } catch (SQLException ex) {
             String msg = "Error when getting book of specific rent " + rent;
-            logger.log(Level.SEVERE, msg, ex);
+            logger.error(msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
@@ -164,11 +180,14 @@ public class RentManagerImpl implements RentManager {
 
     @Override
     public Customer customerOfRent(Rent rent) {
+        logger.debug("Customer of rent");
         checkDataSource();
         if (rent == null) {
+            logger.error("Rent is null");
             throw new IllegalArgumentException("rent is null");
         }
         if (rent.getId() == null) {
+            logger.error("Rent id is null");
             throw new IllegalEntityException("rent id is null");
         }
         Connection conn = null;
@@ -183,7 +202,7 @@ public class RentManagerImpl implements RentManager {
             return CustomerManagerImpl.executeQueryForSingleCustomer(st);
         } catch (SQLException ex) {
             String msg = "Error when getting customer of specific rent " + rent;
-            logger.log(Level.SEVERE, msg, ex);
+            logger.error(msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
@@ -192,6 +211,7 @@ public class RentManagerImpl implements RentManager {
 
     @Override
     public boolean ReturnBook(Rent rent) {
+        logger.debug("Returning book...");
         checkDataSource();
         validateForReturn(rent);
 
@@ -223,8 +243,8 @@ public class RentManagerImpl implements RentManager {
             return false;
 
         } catch (SQLException ex) {
-            String msg = "Error when updating book in the db";
-            logger.log(Level.SEVERE, msg, ex);
+            String msg = "Error when returning the book in the db";
+            logger.error(msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
@@ -234,8 +254,10 @@ public class RentManagerImpl implements RentManager {
 
     @Override
     public void deleteRent(Long id) {
+        logger.debug("Deleting rent...");
         checkDataSource();
         if (id == null) {
+            logger.error("Id of rent is null");
             throw new IllegalEntityException("id is null");
         }
 
@@ -251,6 +273,7 @@ public class RentManagerImpl implements RentManager {
             st.setLong(1, id);
             Rent rent =  executeQueryForSingleRent(st);
             if(rent == null){
+                logger.error("Could not find rent");
                 throw new IllegalArgumentException("could not find rent");
             }
 
@@ -263,19 +286,22 @@ public class RentManagerImpl implements RentManager {
             conn.commit();
         } catch (SQLException ex) {
             String msg = "Error when deleting rent from the db";
-            logger.log(Level.SEVERE, msg, ex);
+            logger.error(msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
         }
+        logger.debug("Rent deleted successfully");
     }
 
     @Override
     public Rent getRentById(Long id) {
+        logger.debug("Getting rent by id");
         checkDataSource();
 
         if (id == null) {
+            logger.error("Id of rent is null");
             throw new IllegalArgumentException("id is null");
         }
 
@@ -297,7 +323,7 @@ public class RentManagerImpl implements RentManager {
 
         } catch (SQLException ex) {
             String msg = "Error when getting rent from the db";
-            logger.log(Level.SEVERE, msg, ex);
+            logger.error(msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
@@ -307,6 +333,7 @@ public class RentManagerImpl implements RentManager {
 
     @Override
     public List<Rent> listAllRents() {
+        logger.debug("Listing all rents...");
         checkDataSource();
         Connection conn = null;
         PreparedStatement st = null;
@@ -322,7 +349,7 @@ public class RentManagerImpl implements RentManager {
             return list;
         } catch (SQLException ex) {
             String msg = "Error when getting all rents from DB";
-            logger.log(Level.SEVERE, msg, ex);
+            logger.error(msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
@@ -331,9 +358,11 @@ public class RentManagerImpl implements RentManager {
 
     @Override
     public List<Rent> listRentsByCustomer(Long customer_id) {
+        logger.debug("Listing rents by customer...");
         checkDataSource();
 
         if (customer_id == null) {
+            logger.error("Id of customer is null");
             throw new IllegalArgumentException("id is null");
         }
 
@@ -345,6 +374,7 @@ public class RentManagerImpl implements RentManager {
                     "SELECT id, fullName, email FROM Customer WHERE id = ?");
             st.setLong(1, customer_id);
             if(null == CustomerManagerImpl.executeQueryForSingleCustomer(st)){
+                logger.error("Could not find customer");
                 throw new IllegalArgumentException("could not find customer");
             }
 
@@ -361,7 +391,7 @@ public class RentManagerImpl implements RentManager {
             return list;
         } catch (SQLException ex) {
             String msg = "Error when getting all rents of customer from DB";
-            logger.log(Level.SEVERE, msg, ex);
+            logger.error(msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
@@ -370,9 +400,11 @@ public class RentManagerImpl implements RentManager {
 
     @Override
     public List<Rent> listRentsByBook(Long book_id) {
+        logger.debug("Listing rents by id");
         checkDataSource();
 
         if (book_id == null) {
+            logger.error("Book id is null");
             throw new IllegalArgumentException("id is null");
         }
 
@@ -384,6 +416,7 @@ public class RentManagerImpl implements RentManager {
                     "SELECT id, author, title FROM Book WHERE id = ?");
             st.setLong(1, book_id);
             if(null == BookManagerImpl.executeQueryForSingleBook(st)){
+                logger.error("Could not find book");
                 throw new IllegalArgumentException("could not find book");
             }
 
@@ -400,7 +433,7 @@ public class RentManagerImpl implements RentManager {
             return list;
         } catch (SQLException ex) {
             String msg = "Error when getting all rents of book from DB";
-            logger.log(Level.SEVERE, msg, ex);
+            logger.error(msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
@@ -408,9 +441,11 @@ public class RentManagerImpl implements RentManager {
     }
 
     private boolean checkBookIsAvailable(Long bookId){
+        logger.debug("Checking book whether is available");
         checkDataSource();
 
         if (bookId == null) {
+            logger.error("Book id is null");
             return false;
         }
         boolean isAvailable = true;
@@ -435,11 +470,12 @@ public class RentManagerImpl implements RentManager {
 
         } catch (SQLException ex) {
             String msg = "Error when getting book with id = " + bookId + " from DB";
-            logger.log(Level.SEVERE, msg, ex);
+            logger.error(msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
         }
+        logger.debug("Book checked successfully");
         return isAvailable;
     }
 
@@ -449,6 +485,7 @@ public class RentManagerImpl implements RentManager {
         if (rs.next()) {
             Rent result = rowToRent(rs);
             if (rs.next()) {
+                logger.error("Internal integrity error: more rents with the same id found!");
                 throw new ServiceFailureException(
                         "Internal integrity error: more rents with the same id found!");
             }
@@ -486,46 +523,56 @@ public class RentManagerImpl implements RentManager {
     }
 
     private void validateForReturn(Rent rent){
+        logger.debug("Validating for return...");
         if(rent == null){
+            logger.error("Rent is null");
             throw new IllegalArgumentException("rent is null");
         }
         if (rent.getId() == null) {
+            logger.error("Rent id is null");
             throw new IllegalEntityException("rent id is null");
         }
         if(rent.getReturnTime() != null){
+            logger.error("Return time should be null");
             throw new IllegalEntityException("return time should be null");
         }
-
+        logger.debug("Rent is OK");
     }
 
     private void validate(Rent rent){
+        logger.debug("Validating rent...");
         if(rent == null){
+            logger.error("Rent is null");
             throw new IllegalArgumentException("rent is null");
         }
         if (rent.getBook() == null) {
+            logger.error("Book is null");
             throw new IllegalArgumentException("book is null");
         }
         if (rent.getCustomer() == null) {
+            logger.error("Customer is null");
             throw new IllegalArgumentException("customer is null");
         }
         if (rent.getCustomer().getId() == null) {
+            logger.error("Customer id is null");
             throw new IllegalArgumentException("customer id is null");
         }
         if (rent.getBook().getId() == null) {
+            logger.error("Book id is null");
             throw new IllegalArgumentException("book id is null");
         }
         if(rent.getRentTime() != null){
+            logger.error("Rent time should be null");
             throw new IllegalEntityException("rent time should be null");
         }
         if(rent.getReturnTime() != null){
+            logger.error("Return time should be null");
             throw new IllegalEntityException("return time should be null");
         }
-        if(rent.getReturnTime() != null){
-            throw new IllegalEntityException("return time should be null");
-        }
-
         if(rent.getExpectedReturnTime() == null || !LocalDate.now().isBefore(rent.getExpectedReturnTime())){
+            logger.error("Expected return date should be after present");
             throw new IllegalEntityException("expected return date should be after present");
         }
+        logger.debug("Rent is OK");
     }
 }

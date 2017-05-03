@@ -9,15 +9,16 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/styleList.css"/>
 </head>
 <body>
 <h2>Updating customer</h2>
 
-<c:if test="${not empty chyba1}">
+<%--<c:if test="${not empty chyba1}">
     <div class="chyba">
         <c:out value="${chyba1}"/>
     </div>
-</c:if>
+</c:if>--%>
 
 <form action="${pageContext.request.contextPath}/sth/postUpdateCustomer?id=${customer.id}" method="post">
     <table>

@@ -24,24 +24,30 @@ public class CustomerManagerImpl implements CustomerManager {
     }
 
     private void checkDataSource() {
+        log.debug("Checking data source");
         if (dataSource == null) {
+            log.error("Data source is not set");
             throw new IllegalStateException("DataSource is not set");
         }
+        log.debug("Data source is OK");
     }
 
     @Override
     public Customer createCustomer(Customer customer) throws SQLException, ValidationException {
+        log.debug("Creating customer...");
         checkDataSource();
         validate(customer);
         if (customer.getId() != null) {
+            log.error("Customer id is already set");
             throw new IllegalEntityException("customer id is already set");
         }
 
         try (Connection con = dataSource.getConnection()) {
-            try (PreparedStatement st1 = con.prepareStatement("select * from customer where email = ?")) {
+            try (PreparedStatement st1 = con.prepareStatement("SELECT * FROM Customer WHERE email = ?")) {
                 st1.setString(1, customer.getEmail());
                 try (ResultSet rs = st1.executeQuery()) {
                     if (rs.next()) {
+                        log.error("Email is existing");
                         throw new IllegalArgumentException("email is existing");
                     }
                 }
@@ -54,7 +60,7 @@ public class CustomerManagerImpl implements CustomerManager {
             conn = dataSource.getConnection();
             conn.setAutoCommit(false);
             st = conn.prepareStatement(
-                    "INSERT INTO customer (fullName,email) VALUES (?,?)",
+                    "INSERT INTO Customer (fullName,email) VALUES (?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             st.setString(1, customer.getFullName());
             st.setString(2, customer.getEmail());
@@ -72,45 +78,58 @@ public class CustomerManagerImpl implements CustomerManager {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
         }
+        log.debug("Customer created successfully");
         return customer;
     }
 
     @Override
     public void updateCustomer(Customer customer) throws ValidationException, SQLException, ServiceFailureException {
         validate(customer);
-        log.debug("updateCustomer({})", customer);
+        log.debug("Updating customer({})", customer);
 
         try (Connection conn = dataSource.getConnection()) {
-            try (PreparedStatement st1 = conn.prepareStatement("select * from customer where email = ?")) {
+            try (PreparedStatement st1 = conn.prepareStatement("SELECT * FROM Customer WHER email = ?")) {
                 st1.setString(1, customer.getEmail());
                 try (ResultSet rs = st1.executeQuery()) {
                     rs.next();
                     if (rs.next()) {
+                        log.debug("Email is existing");
                         throw new IllegalArgumentException("email is existing");
                     }
                 }
             }
         }
 
-        try (Connection con = dataSource.getConnection()) {
-            try (PreparedStatement st = con.prepareStatement("update customer set fullName=?, email=? where id=?")) {
-                st.setString(1, customer.getFullName());
-                st.setString(2, customer.getEmail());
-                st.setLong(3, customer.getId());
-                int n = st.executeUpdate();
-                if (n != 1) {
-                    throw new IllegalArgumentException("not updated book with id " + customer.getId(), null);
-                }
-            }
+        Connection con = null;
+        PreparedStatement st = null;
+        try {
+            con = dataSource.getConnection();
+            con.setAutoCommit(false);
+
+            st = con.prepareStatement("UPDATE Customer SET fullName=?, email=? WHERE id=?");
+
+            st.setString(1, customer.getFullName());
+            st.setString(2, customer.getEmail());
+            st.setLong(3, customer.getId());
+
+            int count = st.executeUpdate();
+            DBUtils.checkUpdatesCount(count, customer, false);
+            con.commit();
         } catch (SQLException e) {
             log.error("cannot update customer", e);
             throw new IllegalArgumentException("database update failed", e);
+        } finally {
+            DBUtils.doRollbackQuietly(con);
+            DBUtils.closeQuietly(con, st);
         }
+        log.debug("Customer updated successfully");
     }
 
     @Override
     public void deleteCustomer(Long id) {
+        log.debug("Deleting customer...");
         if (id < 0L) {
+            log.error("Wrong id in deleteCustomer");
             throw new IllegalArgumentException("wrong id in delete");
         }
 
@@ -123,15 +142,16 @@ public class CustomerManagerImpl implements CustomerManager {
             conn.setAutoCommit(false);
 
             st = conn.prepareStatement(
-                    "SELECT id, fullName, email FROM customer WHERE id = ?");
+                    "SELECT id, fullName, email FROM Customer WHERE id = ?");
             st.setLong(1, id);
             Customer customer =  executeQueryForSingleCustomer(st);
             if(customer == null){
+                log.error("Could not find customer");
                 throw new IllegalArgumentException("could not find customer");
             }
 
             st = conn.prepareStatement(
-                    "DELETE FROM customer WHERE id = ?");
+                    "DELETE FROM Customer WHERE id = ?");
             st.setLong(1, id);
 
             int count = st.executeUpdate();
@@ -145,13 +165,14 @@ public class CustomerManagerImpl implements CustomerManager {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
         }
+        log.debug("Customer deleted successfully");
     }
 
     @Override
     public List<Customer> listAllCustomers() throws SQLException {
-        log.debug("getAllCustomers()");
+        log.debug("Listing all customers...");
         try (Connection con = dataSource.getConnection()) {
-            try (PreparedStatement st = con.prepareStatement("select * from customer")) {
+            try (PreparedStatement st = con.prepareStatement("SELECT * FROM Customer")) {
                 /*try (ResultSet rs = st.executeQuery()) {
                     List<Customer> customers = new ArrayList<>();
                     while (rs.next()) {
@@ -173,7 +194,9 @@ public class CustomerManagerImpl implements CustomerManager {
 
     @Override
     public Customer getCustomerById(Long id) {
+        log.debug("Getting customer by id...");
         if (id < 0L) {
+            log.error("Wrong id in getCustomer");
             throw new IllegalArgumentException("wrong id in get");
         }
 
@@ -184,7 +207,7 @@ public class CustomerManagerImpl implements CustomerManager {
         try {
             conn = dataSource.getConnection();
             st = conn.prepareStatement(
-                    "SELECT id, fullName, email FROM customer WHERE id = ?");
+                    "SELECT id, fullName, email FROM Customer WHERE id = ?");
             st.setLong(1, id);
             return executeQueryForSingleCustomer(st);
         } catch (SQLException ex) {
@@ -197,15 +220,20 @@ public class CustomerManagerImpl implements CustomerManager {
     }
 
     private void validate(Customer customer) throws ValidationException {
+        log.debug("Validating customer...");
         if (customer == null) {
+            log.error("Customer is null");
             throw new IllegalArgumentException("customer is null");
         }
         if (customer.getFullName() == null) {
+            log.error("Customer name is null");
             throw new ValidationException("name is null");
         }
         if (customer.getEmail() == null) {
+            log.error("Email is null");
             throw new ValidationException("email is null");
         }
+        log.debug("Customer is OK");
     }
 
     public static Customer executeQueryForSingleCustomer(PreparedStatement st) throws SQLException, ServiceFailureException {
@@ -213,6 +241,7 @@ public class CustomerManagerImpl implements CustomerManager {
         if (rs.next()) {
             Customer result = idToCustomer(rs);
             if (rs.next()) {
+                log.error("Internal integrity error: more customers with the same id found!");
                 throw new ServiceFailureException(
                         "Internal integrity error: more customers with the same id found!");
             }

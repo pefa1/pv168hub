@@ -1,17 +1,12 @@
-<%@ page import="cz.muni.fi.web.BookServlet" %>
 <%--
   Created by IntelliJ IDEA.
-  User: Pepa
-  Date: 03.04.2017
-  Time: 21:53
+  User: pefa1
+  Date: 3.4.2017
+  Time: 22:53
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<body>
-<%
-    String redirectURL = BookServlet.URL_MAPPING;
-    response.sendRedirect(redirectURL);
-%>
-</body>
-</html>
+<%@ page import="cz.muni.fi.web.BookServlet" %>
+<%@page contentType="text/html;charset=utf-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:redirect url="<%=BookServlet.URL_MAPPING%>"/>
