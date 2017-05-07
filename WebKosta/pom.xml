@@ -23,6 +23,7 @@
     <modules>
         <module>Web</module>
         <module>pv168project</module>
+        <module>gui</module>
     </modules>
 
     <properties>
