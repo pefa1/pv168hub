@@ -55,6 +55,5 @@ public class AddBookDialog extends JDialog {
         AddBookDialog dialog = new AddBookDialog();
         dialog.pack();
         dialog.setVisible(true);
-        System.exit(0);
     }
 }

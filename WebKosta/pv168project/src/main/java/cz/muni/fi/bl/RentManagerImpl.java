@@ -479,6 +479,16 @@ public class RentManagerImpl implements RentManager {
         return isAvailable;
     }
 
+    public List<Book> listAvailableBooks(List<Book> books){
+        List<Book> result = new ArrayList<>();
+        for(Book book : books){
+            if(checkBookIsAvailable(book.getId())){
+                result.add(book);
+            }
+        }
+        return result;
+    }
+
 
     public static Rent executeQueryForSingleRent(PreparedStatement st) throws SQLException, ServiceFailureException {
         ResultSet rs = st.executeQuery();
