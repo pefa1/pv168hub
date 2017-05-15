@@ -88,7 +88,7 @@ public class CustomerManagerImpl implements CustomerManager {
         log.debug("Updating customer({})", customer);
 
         try (Connection conn = dataSource.getConnection()) {
-            try (PreparedStatement st1 = conn.prepareStatement("SELECT * FROM Customer WHER email = ?")) {
+            try (PreparedStatement st1 = conn.prepareStatement("SELECT * FROM Customer WHERE email = ?")) {
                 st1.setString(1, customer.getEmail());
                 try (ResultSet rs = st1.executeQuery()) {
                     rs.next();

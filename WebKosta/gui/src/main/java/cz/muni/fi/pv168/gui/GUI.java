@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,8 @@ public class GUI {
     private DataSource ds;
     private final static Logger log = LoggerFactory.getLogger(GUI.class);
 
+    private String defaultErrorMsg = "Je nutne zadat vsechna pole!";
+
     public GUI() {
         addRentButton.addActionListener(new ActionListener() {
             @Override
@@ -46,34 +49,74 @@ public class GUI {
                 availableBooks.addBooks(rentManager.listAvailableBooks(bookManager.listAllBooks()));
                 JTable books = new JTable(availableBooks);
 
+                JLabel errorMsg = new JLabel(defaultErrorMsg);
+                errorMsg.setForeground(Color.RED);
+                errorMsg.setVisible(false);
                 JTable customers = new JTable(customerModel);
-                JTextField expectedReturnTime = new JTextField();
+                JTextField expectedReturnTime = new JTextField(LocalDate.now().toString());
 
                 Object[] message = {
+                        errorMsg,
                         "Available books:", books,
                         "Customers: ", customers,
                         "Expected return time: ", expectedReturnTime
                 };
+                int option = JOptionPane.NO_OPTION;
+                while(option == JOptionPane.NO_OPTION){
+                    option = JOptionPane.showConfirmDialog(null, message, "Add rent", JOptionPane.OK_CANCEL_OPTION);
+                    if(expectedReturnTime.getText() != null && !expectedReturnTime.getText().isEmpty()){
+                    if (option == JOptionPane.OK_OPTION) {
+                        Rent rent = new Rent();
+                        if(books.getSelectedRow() == -1){
+                            option = JOptionPane.NO_OPTION;
+                            errorMsg.setText("Book has to be selected!");
+                            errorMsg.setVisible(true);
+                            continue;
+                        }
+                        if(customers.getSelectedRow() == -1){
+                            option = JOptionPane.NO_OPTION;
+                            errorMsg.setText("Customer has to be selected!");
+                            errorMsg.setVisible(true);
+                            continue;
+                        }
+                        rent.setBook(bookManager.getBookById((Long) books.getValueAt(books.getSelectedRow(), 0)));
+                        rent.setCustomer(customerManager.getCustomerById((Long) customers.getValueAt(customers.getSelectedRow(), 0)));
+                        try{
+                            rent.setExpectedReturnTime(LocalDate.parse(expectedReturnTime.getText()));
+                        } catch (DateTimeParseException e1){
+                            option = JOptionPane.NO_OPTION;
+                            errorMsg.setText(e1.getMessage());
+                            errorMsg.setVisible(true);
+                        }
+                        try{
+                            rentManager.createRent(rent);
+                            rentModel.addRents(rentManager.listAllRents());
+                        } catch (IllegalEntityException e1){
+                            option = JOptionPane.NO_OPTION;
+                            errorMsg.setText(e1.getMessage());
+                            errorMsg.setVisible(true);
+                        }
+                    } else{
 
-                int option = JOptionPane.showConfirmDialog(null, message, "Add rent", JOptionPane.OK_CANCEL_OPTION);
-                if (option == JOptionPane.OK_OPTION) {
-                    Rent rent = new Rent();
-                    rent.setBook(bookManager.getBookById((Long) books.getValueAt(books.getSelectedRow(), 0)));
-                    rent.setCustomer(customerManager.getCustomerById((Long) customers.getValueAt(customers.getSelectedRow(), 0)));
-                    rent.setExpectedReturnTime(LocalDate.parse(expectedReturnTime.getText()));
-                    rentManager.createRent(rent);
-                    rentModel.addRents(rentManager.listAllRents());
-                } else {
+                    }
 
+                    } else {
+                        option = JOptionPane.NO_OPTION;
+                        errorMsg.setText(defaultErrorMsg);
+                        errorMsg.setVisible(true);
+                    }
                 }
+
             }
         });
 
         deleteRentButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                rentManager.deleteRent((Long) table3.getModel().getValueAt(table3.getSelectedRow(), 0));
-                rentModel.addRents(rentManager.listAllRents());
+                if(table3.getSelectedRow() != -1){
+                    rentManager.deleteRent((Long) table3.getModel().getValueAt(table3.getSelectedRow(), 0));
+                    rentModel.addRents(rentManager.listAllRents());
+                }
             }
         });
 
@@ -84,17 +127,49 @@ public class GUI {
 
                 JTextField expectedReturnTime = new JTextField(rent.getExpectedReturnTime().toString());
 
+                JLabel errorMsg = new JLabel(defaultErrorMsg);
+                errorMsg.setForeground(Color.RED);
+                errorMsg.setVisible(false);
                 Object[] message = {
+                        errorMsg,
                         "Expected return time: ", expectedReturnTime
                 };
-
-                int option = JOptionPane.showConfirmDialog(null, message, "Add rent", JOptionPane.OK_CANCEL_OPTION);
-                if (option == JOptionPane.OK_OPTION) {
-                    rentManager.updateRent((Long) table3.getModel().getValueAt(table3.getSelectedRow(), 0), LocalDate.parse(expectedReturnTime.getText()));
-                    rentModel.addRents(rentManager.listAllRents());
-                } else {
-
+                if(table3.getSelectedRow() == -1){
+                    return;
                 }
+                int option = JOptionPane.NO_OPTION;
+                while(option == JOptionPane.NO_OPTION){
+                    option = JOptionPane.showConfirmDialog(null, message, "Add rent", JOptionPane.OK_CANCEL_OPTION);
+                    if (option == JOptionPane.OK_OPTION) {
+                        if(expectedReturnTime.getText() != null && !expectedReturnTime.getText().isEmpty()){
+                            try{
+                                LocalDate newDate;
+                                try{
+                                    newDate = LocalDate.parse(expectedReturnTime.getText());
+                                } catch (DateTimeParseException e1){
+                                    option = JOptionPane.NO_OPTION;
+                                    errorMsg.setText(e1.getMessage());
+                                    errorMsg.setVisible(true);
+                                    continue;
+                                }
+                                rentManager.updateRent((Long) table3.getModel().getValueAt(table3.getSelectedRow(), 0), newDate);
+                                rentModel.addRents(rentManager.listAllRents());
+                            } catch(IllegalArgumentException e1){
+                                option = JOptionPane.NO_OPTION;
+                                errorMsg.setText(e1.getMessage());
+                                errorMsg.setVisible(true);
+                            }
+                        } else{
+                            option = JOptionPane.NO_OPTION;
+                            errorMsg.setText(defaultErrorMsg);
+                            errorMsg.setVisible(true);
+                        }
+
+                    } else {
+
+                    }
+                }
+
             }
         });
 
@@ -110,31 +185,54 @@ public class GUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JTextField fullName = new JTextField();
+                JLabel errorMsg = new JLabel(defaultErrorMsg);
+                errorMsg.setForeground(Color.RED);
+                errorMsg.setVisible(false);
                 JTextField email = new JTextField();
                 Object[] message = {
+                        errorMsg,
                         "FullName:", fullName,
                         "Email:", email
                 };
+                int option = JOptionPane.NO_OPTION;
+                while(option == JOptionPane.NO_OPTION){
+                    option = JOptionPane.showConfirmDialog(null, message, "Add customer", JOptionPane.OK_CANCEL_OPTION);
+                    if (option == JOptionPane.OK_OPTION) {
+                        if(fullName.getText() != null && !fullName.getText().isEmpty() && email.getText() != null && !email.getText().isEmpty()){
+                            Customer customer = new Customer();
+                            customer.setFullName(fullName.getText());
+                            customer.setEmail(email.getText());
+                            try {
+                                customerManager.createCustomer(customer);
+                            } catch (SQLException e1) {
+                                option = JOptionPane.NO_OPTION;
+                                errorMsg.setText(e1.getMessage());
+                                errorMsg.setVisible(true);
+                            } catch (ValidationException e1) {
+                                option = JOptionPane.NO_OPTION;
+                                errorMsg.setText(e1.getMessage());
+                                errorMsg.setVisible(true);
+                            } catch (IllegalArgumentException e1){
+                                option = JOptionPane.NO_OPTION;
+                                errorMsg.setText(e1.getMessage());
+                                errorMsg.setVisible(true);
+                            }
+                            try {
+                                customerModel.addCustomers(customerManager.listAllCustomers());
+                            } catch (SQLException e1) {
+                                option = JOptionPane.NO_OPTION;
+                                errorMsg.setText(e1.getMessage());
+                                errorMsg.setVisible(true);
+                            }
+                        }
+                        else{
+                            option = JOptionPane.NO_OPTION;
+                            errorMsg.setText(defaultErrorMsg);
+                            errorMsg.setVisible(true);
+                        }
+                    } else {
 
-                int option = JOptionPane.showConfirmDialog(null, message, "Add customer", JOptionPane.OK_CANCEL_OPTION);
-                if (option == JOptionPane.OK_OPTION) {
-                    Customer customer = new Customer();
-                    customer.setFullName(fullName.getText());
-                    customer.setEmail(email.getText());
-                    try {
-                        customerManager.createCustomer(customer);
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                    } catch (ValidationException e1) {
-                        e1.printStackTrace();
                     }
-                    try {
-                        customerModel.addCustomers(customerManager.listAllCustomers());
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                    }
-                } else {
-
                 }
             }
         });
@@ -142,11 +240,13 @@ public class GUI {
         deleteCustomerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                customerManager.deleteCustomer((Long) table2.getModel().getValueAt(table2.getSelectedRow(), 0));
-                try {
-                    customerModel.addCustomers(customerManager.listAllCustomers());
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
+                if(table2.getSelectedRow() != -1){
+                    customerManager.deleteCustomer((Long) table2.getModel().getValueAt(table2.getSelectedRow(), 0));
+                    try {
+                        customerModel.addCustomers(customerManager.listAllCustomers());
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                    }
                 }
             }
         });
@@ -154,32 +254,58 @@ public class GUI {
         updateCustomerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Customer customer = customerManager.getCustomerById((Long) table2.getModel().getValueAt(table2.getSelectedRow(), 0));
-                JTextField fullName = new JTextField(customer.getFullName());
-                JTextField email = new JTextField(customer.getEmail());
-                Object[] message = {
-                        "FullName:", fullName,
-                        "Email:", email
-                };
+                if(table2.getSelectedRow() != -1){
+                    Customer customer = customerManager.getCustomerById((Long) table2.getModel().getValueAt(table2.getSelectedRow(), 0));
+                    JLabel errorMsg = new JLabel(defaultErrorMsg);
+                    errorMsg.setForeground(Color.RED);
+                    errorMsg.setVisible(false);
+                    JTextField fullName = new JTextField(customer.getFullName());
+                    JTextField email = new JTextField(customer.getEmail());
+                    Object[] message = {
+                            errorMsg,
+                            "FullName:", fullName,
+                            "Email:", email
+                    };
 
-                int option = JOptionPane.showConfirmDialog(null, message, "Update customer", JOptionPane.OK_CANCEL_OPTION);
-                if (option == JOptionPane.OK_OPTION) {
-                    customer.setFullName(fullName.getText());
-                    customer.setEmail(email.getText());
-                    try {
-                        customerManager.updateCustomer(customer);
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                    } catch (ValidationException e1) {
-                        e1.printStackTrace();
-                    }
-                    try {
-                        customerModel.addCustomers(customerManager.listAllCustomers());
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                    }
-                } else {
+                    int option = JOptionPane.NO_OPTION;
+                    while(option ==JOptionPane.NO_OPTION){
+                        option = JOptionPane.showConfirmDialog(null, message, "Update customer", JOptionPane.OK_CANCEL_OPTION);
+                        if (option == JOptionPane.OK_OPTION) {
+                            if(fullName.getText() != null && !fullName.getText().isEmpty() && email.getText() != null && !email.getText().isEmpty()){
+                                customer.setFullName(fullName.getText());
+                                customer.setEmail(email.getText());
+                                try {
+                                    customerManager.updateCustomer(customer);
+                                } catch (SQLException e1) {
+                                    option = JOptionPane.NO_OPTION;
+                                    errorMsg.setText(e1.getMessage());
+                                    errorMsg.setVisible(true);
+                                } catch (ValidationException e1) {
+                                    option = JOptionPane.NO_OPTION;
+                                    errorMsg.setText(e1.getMessage());
+                                    errorMsg.setVisible(true);
+                                }
+                                catch (IllegalArgumentException e1){
+                                    option = JOptionPane.NO_OPTION;
+                                    errorMsg.setText(e1.getMessage());
+                                    errorMsg.setVisible(true);
+                                }
+                                try {
+                                    customerModel.addCustomers(customerManager.listAllCustomers());
+                                } catch (SQLException e1) {
+                                    e1.printStackTrace();
+                                }
+                            }
+                            else{
+                                option = JOptionPane.NO_OPTION;
+                                errorMsg.setText(defaultErrorMsg);
+                                errorMsg.setVisible(true);
+                            }
 
+                        } else {
+
+                        }
+                    }
                 }
             }
         });
@@ -187,56 +313,87 @@ public class GUI {
         addBookButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                JLabel errorMsg = new JLabel(defaultErrorMsg);
+                errorMsg.setForeground(Color.RED);
+                errorMsg.setVisible(false);
                 JTextField author = new JTextField();
                 JTextField title = new JTextField();
                 Object[] message = {
+                        errorMsg,
                         "Author:", author,
                         "Title:", title
                 };
-
-                int option = JOptionPane.showConfirmDialog(null, message, "Add book", JOptionPane.OK_CANCEL_OPTION);
-                if (option == JOptionPane.OK_OPTION) {
-                    Book book = new Book();
-                    book.setAuthor(author.getText());
-                    book.setTitle(title.getText());
-                    bookManager.createBook(book);
-                    bookModel.addBooks(bookManager.listAllBooks());
-                } else {
-
+                int option = JOptionPane.NO_OPTION;
+                while(option == JOptionPane.NO_OPTION){
+                    option = JOptionPane.showConfirmDialog(null, message, "Add book", JOptionPane.OK_CANCEL_OPTION);
+                    if (option == JOptionPane.OK_OPTION) {
+                        if(author.getText() != null && !author.getText().isEmpty() && title.getText() != null && !title.getText().isEmpty()){
+                            Book book = new Book();
+                            book.setAuthor(author.getText());
+                            book.setTitle(title.getText());
+                            bookManager.createBook(book);
+                            bookModel.addBooks(bookManager.listAllBooks());
+                        } else{
+                            option = JOptionPane.NO_OPTION;
+                            errorMsg.setVisible(true);
+                        }
+                    } else {
+                    }
                 }
+
             }
         });
 
         deleteBookButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                bookManager.deleteBook((Long) table1.getModel().getValueAt(table1.getSelectedRow(), 0));
-                bookModel.addBooks(bookManager.listAllBooks());
+                if(table1.getSelectedRow() != -1){
+                    bookManager.deleteBook((Long) table1.getModel().getValueAt(table1.getSelectedRow(), 0));
+                    bookModel.addBooks(bookManager.listAllBooks());
+                }
+                else{
+                    JOptionPane.showMessageDialog(null, "Pro smazani oznacte radek v tabulce!", "Chyba",JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
         updateBookButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Book book = bookManager.getBookById((Long) table1.getModel().getValueAt(table1.getSelectedRow(), 0));
-                JTextField author = new JTextField(book.getAuthor());
-                JTextField title = new JTextField(book.getTitle());
-                Object[] message = {
-                        "Author:", author,
-                        "Title:", title
-                };
-
-                int option = JOptionPane.showConfirmDialog(null, message, "Update book", JOptionPane.OK_CANCEL_OPTION);
-                if (option == JOptionPane.OK_OPTION) {
-                    book.setAuthor(author.getText());
-                    book.setTitle(title.getText());
-                    bookManager.updateBook(book);
-                    bookModel.addBooks(bookManager.listAllBooks());
-                } else {
+                if(table1.getSelectedRow() != -1){
+                    Book book = bookManager.getBookById((Long) table1.getModel().getValueAt(table1.getSelectedRow(), 0));
+                    JLabel errorMsg = new JLabel(defaultErrorMsg);
+                    errorMsg.setForeground(Color.RED);
+                    errorMsg.setVisible(false);
+                    JTextField author = new JTextField(book.getAuthor());
+                    JTextField title = new JTextField(book.getTitle());
+                    Object[] message = {
+                            errorMsg,
+                            "Author:", author,
+                            "Title:", title
+                    };
+                    int option = JOptionPane.NO_OPTION;
+                    while(option == JOptionPane.NO_OPTION){
+                        option = JOptionPane.showConfirmDialog(null, message, "Update book", JOptionPane.OK_CANCEL_OPTION);
+                        if (option == JOptionPane.OK_OPTION) {
+                            if(author.getText() != null && !author.getText().isEmpty() && title.getText() != null && !title.getText().isEmpty()){
+                                book.setAuthor(author.getText());
+                                book.setTitle(title.getText());
+                                bookManager.updateBook(book);
+                                bookModel.addBooks(bookManager.listAllBooks());
+                            } else{
+                                option = JOptionPane.NO_OPTION;
+                                errorMsg.setVisible(true);
+                            }
+                        } else {
+                        }
+                    }
 
                 }
+                else{
+                    JOptionPane.showMessageDialog(null, "Pro zmenu udaju oznacte radek v tabulce!", "Chyba",JOptionPane.ERROR_MESSAGE);
+                }
             }
-
         });
 
     }
