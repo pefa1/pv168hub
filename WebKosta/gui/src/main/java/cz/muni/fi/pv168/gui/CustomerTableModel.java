@@ -41,6 +41,13 @@ public class CustomerTableModel extends AbstractTableModel {
         }
     }
 
+    public void changeResourceBundle(String baseName, Locale locale){
+        if(baseName != null && locale != null){
+            this.locale = locale;
+            this.bundle = ResourceBundle.getBundle(baseName, locale);
+        }
+    }
+
     @Override
     public String getColumnName(int columnIndex) {
         switch (columnIndex) {
