@@ -21,7 +21,7 @@ import java.util.ResourceBundle;
  */
 public class GUI {
 
-    private Locale locale = Locale.forLanguageTag("cs-CZ");
+    private Locale locale = Locale.forLanguageTag("en-US");
     private ResourceBundle bundle = ResourceBundle.getBundle("localization", locale);
     private JPanel panel1, Customer, Rent, Book;
     private JButton addRentButton, deleteRentButton, updateRentButton, returnBookButton;
