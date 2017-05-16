@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
  */
 public class RentTableModel extends AbstractTableModel {
 
-    private Locale locale = Locale.forLanguageTag("cs-CZ");
+    private Locale locale = Locale.forLanguageTag("");
     private ResourceBundle bundle = ResourceBundle.getBundle("localization", locale);
     private List<Rent> rents = new ArrayList<Rent>();
     @Override
@@ -58,6 +58,12 @@ public class RentTableModel extends AbstractTableModel {
         }
     }
 
+    public void changeResourceBundle(String baseName, Locale locale){
+        if(baseName != null && locale != null){
+            this.locale = locale;
+            this.bundle = ResourceBundle.getBundle(baseName, locale);
+        }
+    }
 
     @Override
     public String getColumnName(int columnIndex) {

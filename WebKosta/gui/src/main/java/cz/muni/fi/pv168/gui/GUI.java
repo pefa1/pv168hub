@@ -10,10 +10,16 @@ import javax.xml.bind.ValidationException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 /**
@@ -21,7 +27,7 @@ import java.util.ResourceBundle;
  */
 public class GUI {
 
-    private Locale locale = Locale.forLanguageTag("cs-CZ");
+    private Locale locale = Locale.forLanguageTag("cs-CS");
     private ResourceBundle bundle = ResourceBundle.getBundle("localization", locale);
     private JPanel panel1, Customer, Rent, Book;
     private JButton addRentButton, deleteRentButton, updateRentButton, returnBookButton;
@@ -30,6 +36,10 @@ public class GUI {
     private JTable table1;
     private JTable table2;
     private JTable table3;
+    private JTabbedPane tab;
+    private JButton czLanguage;
+    private JButton skLanguage;
+    private JButton enLanguage;
     private BookManagerImpl bookManager;
     private RentManagerImpl rentManager;
     private CustomerManagerImpl customerManager;
@@ -37,9 +47,14 @@ public class GUI {
     private CustomerTableModel customerModel;
     private RentTableModel rentModel;
     private DataSource ds;
-    private final static Logger log = LoggerFactory.getLogger(GUI.class);
+    private String configFilePath = "config.properties";
 
-    private String defaultErrorMsg = bundle.getString("defaultError");
+    public void setProps(Properties props) {
+        this.props = props;
+    }
+
+    private Properties props;
+    private final static Logger log = LoggerFactory.getLogger(GUI.class);
 
     public GUI() {
         addRentButton.addActionListener(new ActionListener() {
@@ -49,7 +64,7 @@ public class GUI {
                 availableBooks.addBooks(rentManager.listAvailableBooks(bookManager.listAllBooks()));
                 JTable books = new JTable(availableBooks);
 
-                JLabel errorMsg = new JLabel(defaultErrorMsg);
+                JLabel errorMsg = new JLabel(bundle.getString("defaultError"));
                 errorMsg.setForeground(Color.RED);
                 errorMsg.setVisible(false);
                 JTable customers = new JTable(customerModel);
@@ -64,8 +79,9 @@ public class GUI {
                 int option = JOptionPane.NO_OPTION;
                 while(option == JOptionPane.NO_OPTION){
                     option = JOptionPane.showConfirmDialog(null, message, bundle.getString("addRentButton"), JOptionPane.OK_CANCEL_OPTION);
-                    if(expectedReturnTime.getText() != null && !expectedReturnTime.getText().isEmpty()){
+
                     if (option == JOptionPane.OK_OPTION) {
+                        if(expectedReturnTime.getText() != null && !expectedReturnTime.getText().isEmpty()){
                         Rent rent = new Rent();
                         if(books.getSelectedRow() == -1){
                             option = JOptionPane.NO_OPTION;
@@ -97,13 +113,13 @@ public class GUI {
                             errorMsg.setVisible(true);
                         }
                     } else{
-
+                        option = JOptionPane.NO_OPTION;
+                        errorMsg.setText(bundle.getString("defaultError"));
+                        errorMsg.setVisible(true);
                     }
 
                     } else {
-                        option = JOptionPane.NO_OPTION;
-                        errorMsg.setText(defaultErrorMsg);
-                        errorMsg.setVisible(true);
+
                     }
                 }
 
@@ -127,7 +143,7 @@ public class GUI {
 
                 JTextField expectedReturnTime = new JTextField(rent.getExpectedReturnTime().toString());
 
-                JLabel errorMsg = new JLabel(defaultErrorMsg);
+                JLabel errorMsg = new JLabel(bundle.getString("defaultError"));
                 errorMsg.setForeground(Color.RED);
                 errorMsg.setVisible(false);
                 Object[] message = {
@@ -161,7 +177,7 @@ public class GUI {
                             }
                         } else{
                             option = JOptionPane.NO_OPTION;
-                            errorMsg.setText(defaultErrorMsg);
+                            errorMsg.setText(bundle.getString("defaultError"));
                             errorMsg.setVisible(true);
                         }
 
@@ -185,7 +201,7 @@ public class GUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JTextField fullName = new JTextField();
-                JLabel errorMsg = new JLabel(defaultErrorMsg);
+                JLabel errorMsg = new JLabel(bundle.getString("defaultError"));
                 errorMsg.setForeground(Color.RED);
                 errorMsg.setVisible(false);
                 JTextField email = new JTextField();
@@ -227,7 +243,7 @@ public class GUI {
                         }
                         else{
                             option = JOptionPane.NO_OPTION;
-                            errorMsg.setText(defaultErrorMsg);
+                            errorMsg.setText(bundle.getString("defaultError"));
                             errorMsg.setVisible(true);
                         }
                     } else {
@@ -256,7 +272,7 @@ public class GUI {
             public void actionPerformed(ActionEvent e) {
                 if(table2.getSelectedRow() != -1){
                     Customer customer = customerManager.getCustomerById((Long) table2.getModel().getValueAt(table2.getSelectedRow(), 0));
-                    JLabel errorMsg = new JLabel(defaultErrorMsg);
+                    JLabel errorMsg = new JLabel(bundle.getString("defaultError"));
                     errorMsg.setForeground(Color.RED);
                     errorMsg.setVisible(false);
                     JTextField fullName = new JTextField(customer.getFullName());
@@ -298,7 +314,7 @@ public class GUI {
                             }
                             else{
                                 option = JOptionPane.NO_OPTION;
-                                errorMsg.setText(defaultErrorMsg);
+                                errorMsg.setText(bundle.getString("defaultError"));
                                 errorMsg.setVisible(true);
                             }
 
@@ -313,7 +329,7 @@ public class GUI {
         addBookButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JLabel errorMsg = new JLabel(defaultErrorMsg);
+                JLabel errorMsg = new JLabel(bundle.getString("defaultError"));
                 errorMsg.setForeground(Color.RED);
                 errorMsg.setVisible(false);
                 JTextField author = new JTextField();
@@ -362,7 +378,7 @@ public class GUI {
             public void actionPerformed(ActionEvent e) {
                 if(table1.getSelectedRow() != -1){
                     Book book = bookManager.getBookById((Long) table1.getModel().getValueAt(table1.getSelectedRow(), 0));
-                    JLabel errorMsg = new JLabel(defaultErrorMsg);
+                    JLabel errorMsg = new JLabel(bundle.getString("defaultError"));
                     errorMsg.setForeground(Color.RED);
                     errorMsg.setVisible(false);
                     JTextField author = new JTextField(book.getAuthor());
@@ -396,18 +412,133 @@ public class GUI {
             }
         });
 
+        czLanguage.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                changeResourceBundle("localization", Locale.forLanguageTag("cs-CS"));
+                props.setProperty("language", "cs-CS");
+                File configFile = new File(configFilePath);
+                FileWriter writer = null;
+                try {
+                    writer = new FileWriter(configFile);
+                    props.store(writer, "language");
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        skLanguage.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                changeResourceBundle("localization", Locale.forLanguageTag("sk-SK"));
+                props.setProperty("language", "sk-SK");
+                File configFile = new File(configFilePath);
+                FileWriter writer = null;
+                try {
+                    writer = new FileWriter(configFile);
+                    props.store(writer, "language");
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        enLanguage.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                changeResourceBundle("localization", Locale.forLanguageTag("en-US"));
+
+                props.setProperty("language", "en-US");
+                File configFile = new File(configFilePath);
+                FileWriter writer = null;
+                try {
+                    writer = new FileWriter(configFile);
+                    props.store(writer, "language");
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
     }
 
-    public static void main(String[] args) {
-        EventQueue.invokeLater( ()-> { // zde použito funcionální rozhraní
-            JFrame frame = new JFrame();
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    public void changeResourceBundle(String baseName, Locale locale){
+        this.locale = locale;
+        this.bundle = ResourceBundle.getBundle(baseName, locale);
+        this.addBookButton.setText(bundle.getString("addBookButton"));
+        this.addCustomerButton.setText(bundle.getString("addCustomerButton"));
+        this.addRentButton.setText(bundle.getString("addRentButton"));
+        this.deleteBookButton.setText(bundle.getString("deleteBookButton"));
+        this.deleteCustomerButton.setText(bundle.getString("deleteCustomerButton"));
+        this.deleteRentButton.setText(bundle.getString("deleteRentButton"));
+        this.updateBookButton.setText(bundle.getString("updateBookButton"));
+        this.updateCustomerButton.setText(bundle.getString("updateCustomerButton"));
+        this.updateRentButton.setText(bundle.getString("updateRentButton"));
+        this.returnBookButton.setText(bundle.getString("returnBookButton"));
+        this.czLanguage.setText(bundle.getString("czLanguage"));
+        this.enLanguage.setText(bundle.getString("enLanguage"));
+        this.skLanguage.setText(bundle.getString("skLanguage"));
+        this.tab.setTitleAt(0, bundle.getString("BookTab"));
+        this.tab.setTitleAt(1, bundle.getString("CustomerTab"));
+        this.tab.setTitleAt(2, bundle.getString("RentTab"));
+        this.tab.setTitleAt(3, bundle.getString("languageTab"));
+        bookModel.changeResourceBundle("localization", locale);
+        int skip = 0;
+        for(int i = 0; i < bookModel.getColumnCount(); i++){
+            if(bookModel.getColumnName(i).toLowerCase().contains("id")){
+                skip++;
+                continue;
+            }
+            table1.getTableHeader().getColumnModel().getColumn(i - skip).setHeaderValue(bookModel.getColumnName(i));
+        }
+
+        customerModel.changeResourceBundle("localization", locale);
+        skip = 0;
+        for(int i = 0; i < customerModel.getColumnCount(); i++){
+            if(customerModel.getColumnName(i).toLowerCase().contains("id")){
+                skip++;
+                continue;
+            }
+            table2.getTableHeader().getColumnModel().getColumn(i - skip).setHeaderValue(customerModel.getColumnName(i));
+        }
+
+        rentModel.changeResourceBundle("localization", locale);
+        skip = 0;
+        for(int i = 0; i < rentModel.getColumnCount(); i++){
+            if(rentModel.getColumnName(i).toLowerCase().contains("id")){
+                skip++;
+                continue;
+            }
+            table3.getTableHeader().getColumnModel().getColumn(i - skip).setHeaderValue(rentModel.getColumnName(i));
+        }
+    }
+
+    public static void main(String[] args){
+        EventQueue.invokeLater( ()-> { // zde použito funcionální rozhran
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            frame.setContentPane(new GUI().panel1);
+            GUI panel = new GUI();
+            File configFile = new File("config.properties");
+            FileReader reader = null;
+            try {
+                reader = new FileReader(configFile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            Properties props = new Properties();
+            try {
+                props.load(reader);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            panel.setProps(props);
+            panel.changeResourceBundle("localization", Locale.forLanguageTag(props.getProperty("language")));
+            JFrame frame = new JFrame();
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            frame.setContentPane(panel.panel1);
             frame.setTitle("GUI App");
             frame.setPreferredSize(new Dimension(800,600));
 
@@ -418,6 +549,7 @@ public class GUI {
 
     private void prepareDB() {
         log.info("gui aplikace inicializována");
+
         ds = null;
         try {
             Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
@@ -454,7 +586,7 @@ public class GUI {
         log.info("vytvořeny manažery a uloženy do atributů gui");
     }
 
-    private void createUIComponents() {
+    private void createUIComponents(){
         prepareDB();
 
         bookModel = new BookTableModel();
