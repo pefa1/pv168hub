@@ -6,23 +6,23 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import javax.swing.*;
-import javax.xml.bind.*;
 import javax.xml.bind.ValidationException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Created by pefa1 on 3.5.2017.
  */
 public class GUI {
 
+    private Locale locale = Locale.forLanguageTag("cs-CZ");
+    private ResourceBundle bundle = ResourceBundle.getBundle("localization", locale);
     private JPanel panel1, Customer, Rent, Book;
     private JButton addRentButton, deleteRentButton, updateRentButton, returnBookButton;
     private JButton addCustomerButton, deleteCustomerButton, updateCustomerButton;
@@ -39,7 +39,7 @@ public class GUI {
     private DataSource ds;
     private final static Logger log = LoggerFactory.getLogger(GUI.class);
 
-    private String defaultErrorMsg = "Je nutne zadat vsechna pole!";
+    private String defaultErrorMsg = bundle.getString("defaultError");
 
     public GUI() {
         addRentButton.addActionListener(new ActionListener() {
@@ -57,25 +57,25 @@ public class GUI {
 
                 Object[] message = {
                         errorMsg,
-                        "Available books:", books,
-                        "Customers: ", customers,
-                        "Expected return time: ", expectedReturnTime
+                        bundle.getString("availableBooks") + ":", books,
+                        bundle.getString("customers") + ": ", customers,
+                        bundle.getString("expectedReturnTimeLabel") + ": ", expectedReturnTime
                 };
                 int option = JOptionPane.NO_OPTION;
                 while(option == JOptionPane.NO_OPTION){
-                    option = JOptionPane.showConfirmDialog(null, message, "Add rent", JOptionPane.OK_CANCEL_OPTION);
+                    option = JOptionPane.showConfirmDialog(null, message, bundle.getString("addRentButton"), JOptionPane.OK_CANCEL_OPTION);
                     if(expectedReturnTime.getText() != null && !expectedReturnTime.getText().isEmpty()){
                     if (option == JOptionPane.OK_OPTION) {
                         Rent rent = new Rent();
                         if(books.getSelectedRow() == -1){
                             option = JOptionPane.NO_OPTION;
-                            errorMsg.setText("Book has to be selected!");
+                            errorMsg.setText(bundle.getString("selectBookEr"));
                             errorMsg.setVisible(true);
                             continue;
                         }
                         if(customers.getSelectedRow() == -1){
                             option = JOptionPane.NO_OPTION;
-                            errorMsg.setText("Customer has to be selected!");
+                            errorMsg.setText(bundle.getString("selectCustomerEr"));
                             errorMsg.setVisible(true);
                             continue;
                         }
@@ -132,14 +132,14 @@ public class GUI {
                 errorMsg.setVisible(false);
                 Object[] message = {
                         errorMsg,
-                        "Expected return time: ", expectedReturnTime
+                        bundle.getString("expectedReturnTimeLabel")+ ": ", expectedReturnTime
                 };
                 if(table3.getSelectedRow() == -1){
                     return;
                 }
                 int option = JOptionPane.NO_OPTION;
                 while(option == JOptionPane.NO_OPTION){
-                    option = JOptionPane.showConfirmDialog(null, message, "Add rent", JOptionPane.OK_CANCEL_OPTION);
+                    option = JOptionPane.showConfirmDialog(null, message, bundle.getString("addRentButton"), JOptionPane.OK_CANCEL_OPTION);
                     if (option == JOptionPane.OK_OPTION) {
                         if(expectedReturnTime.getText() != null && !expectedReturnTime.getText().isEmpty()){
                             try{
@@ -191,12 +191,12 @@ public class GUI {
                 JTextField email = new JTextField();
                 Object[] message = {
                         errorMsg,
-                        "FullName:", fullName,
-                        "Email:", email
+                        bundle.getString("fullNameLabel") + ":", fullName,
+                        bundle.getString("emailLabel") + ":", email
                 };
                 int option = JOptionPane.NO_OPTION;
                 while(option == JOptionPane.NO_OPTION){
-                    option = JOptionPane.showConfirmDialog(null, message, "Add customer", JOptionPane.OK_CANCEL_OPTION);
+                    option = JOptionPane.showConfirmDialog(null, message, bundle.getString("addCustomerButton"), JOptionPane.OK_CANCEL_OPTION);
                     if (option == JOptionPane.OK_OPTION) {
                         if(fullName.getText() != null && !fullName.getText().isEmpty() && email.getText() != null && !email.getText().isEmpty()){
                             Customer customer = new Customer();
@@ -263,8 +263,8 @@ public class GUI {
                     JTextField email = new JTextField(customer.getEmail());
                     Object[] message = {
                             errorMsg,
-                            "FullName:", fullName,
-                            "Email:", email
+                            bundle.getString("fullNameLabel") + ":", fullName,
+                            bundle.getString("emailLabel") + ":", email
                     };
 
                     int option = JOptionPane.NO_OPTION;
@@ -320,12 +320,12 @@ public class GUI {
                 JTextField title = new JTextField();
                 Object[] message = {
                         errorMsg,
-                        "Author:", author,
-                        "Title:", title
+                        bundle.getString("authorLabel") + ":", author,
+                        bundle.getString("titleLabel") + ":", title
                 };
                 int option = JOptionPane.NO_OPTION;
                 while(option == JOptionPane.NO_OPTION){
-                    option = JOptionPane.showConfirmDialog(null, message, "Add book", JOptionPane.OK_CANCEL_OPTION);
+                    option = JOptionPane.showConfirmDialog(null, message, bundle.getString("addBookButton"), JOptionPane.OK_CANCEL_OPTION);
                     if (option == JOptionPane.OK_OPTION) {
                         if(author.getText() != null && !author.getText().isEmpty() && title.getText() != null && !title.getText().isEmpty()){
                             Book book = new Book();
@@ -352,7 +352,7 @@ public class GUI {
                     bookModel.addBooks(bookManager.listAllBooks());
                 }
                 else{
-                    JOptionPane.showMessageDialog(null, "Pro smazani oznacte radek v tabulce!", "Chyba",JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, bundle.getString("bookEr"), "Chyba",JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -369,12 +369,12 @@ public class GUI {
                     JTextField title = new JTextField(book.getTitle());
                     Object[] message = {
                             errorMsg,
-                            "Author:", author,
-                            "Title:", title
+                            bundle.getString("authorLabel") + ":", author,
+                            bundle.getString("titleLabel") + ":", title
                     };
                     int option = JOptionPane.NO_OPTION;
                     while(option == JOptionPane.NO_OPTION){
-                        option = JOptionPane.showConfirmDialog(null, message, "Update book", JOptionPane.OK_CANCEL_OPTION);
+                        option = JOptionPane.showConfirmDialog(null, message, bundle.getString("updateBookButton"), JOptionPane.OK_CANCEL_OPTION);
                         if (option == JOptionPane.OK_OPTION) {
                             if(author.getText() != null && !author.getText().isEmpty() && title.getText() != null && !title.getText().isEmpty()){
                                 book.setAuthor(author.getText());
@@ -391,7 +391,7 @@ public class GUI {
 
                 }
                 else{
-                    JOptionPane.showMessageDialog(null, "Pro zmenu udaju oznacte radek v tabulce!", "Chyba",JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, bundle.getString("bookEr"), "Chyba",JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

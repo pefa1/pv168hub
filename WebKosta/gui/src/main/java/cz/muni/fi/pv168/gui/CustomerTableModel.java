@@ -5,12 +5,16 @@ import cz.muni.fi.bl.Customer;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Created by Pepa on 08.05.2017.
  */
 public class CustomerTableModel extends AbstractTableModel {
 
+    private Locale locale = Locale.forLanguageTag("cs-CZ");
+    private ResourceBundle bundle = ResourceBundle.getBundle("localization", locale);
     private List<Customer> customers = new ArrayList<Customer>();
     @Override
     public int getRowCount() {
@@ -43,9 +47,9 @@ public class CustomerTableModel extends AbstractTableModel {
             case 0:
                 return "Id";
             case 1:
-                return "FullName";
+                return bundle.getString("fullNameLabel");
             case 2:
-                return "Email";
+                return bundle.getString("emailLabel");
             default:
                 throw new IllegalArgumentException("columnIndex");
         }

@@ -5,12 +5,16 @@ import cz.muni.fi.bl.Rent;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Created by Pepa on 08.05.2017.
  */
 public class RentTableModel extends AbstractTableModel {
 
+    private Locale locale = Locale.forLanguageTag("cs-CZ");
+    private ResourceBundle bundle = ResourceBundle.getBundle("localization", locale);
     private List<Rent> rents = new ArrayList<Rent>();
     @Override
     public int getRowCount() {
@@ -61,23 +65,23 @@ public class RentTableModel extends AbstractTableModel {
             case 0:
                 return "Id";
             case 1:
-                return "bookId";
+                return bundle.getString("bookId");
             case 2:
-                return "Author of book";
+                return bundle.getString("authorOfBook");
             case 3:
-                return "Title of book";
+                return bundle.getString("titleOfBook");
             case 4:
-                return "customerId";
+                return bundle.getString("customerId");
             case 5:
-                return "Full name of customer";
+                return bundle.getString("fullNameOfCustomer");
             case 6:
-                return "Email of customer";
+                return bundle.getString("emailOfCustomer");
             case 7:
-                return "Rent time";
+                return bundle.getString("rentTime");
             case 8:
-                return "Expected return time";
+                return bundle.getString("expectedReturnTimeLabel");
             case 9:
-                return "Return time";
+                return bundle.getString("returnTime");
             default:
                 throw new IllegalArgumentException("columnIndex");
         }

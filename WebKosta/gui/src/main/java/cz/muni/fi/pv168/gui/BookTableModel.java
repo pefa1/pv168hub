@@ -5,12 +5,16 @@ import cz.muni.fi.bl.Book;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Created by Pepa on 07.05.2017.
  */
 public class BookTableModel extends AbstractTableModel {
 
+    private Locale locale = Locale.forLanguageTag("cs-CZ");
+    private ResourceBundle bundle = ResourceBundle.getBundle("localization", locale);
     private List<Book> books = new ArrayList<Book>();
 
     @Override
@@ -44,9 +48,9 @@ public class BookTableModel extends AbstractTableModel {
             case 0:
                 return "Id";
             case 1:
-                return "Author";
+                return bundle.getString("authorLabel");
             case 2:
-                return "Title";
+                return bundle.getString("titleLabel");
             default:
                 throw new IllegalArgumentException("columnIndex");
         }
