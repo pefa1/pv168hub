@@ -18,9 +18,9 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by pefa1 on 3.5.2017.
@@ -91,8 +91,6 @@ public class GUI {
                             errorMsg.setVisible(true);
                             continue;
                         }
-                        rent.setBook(bookManager.getBookById((Long) books.getValueAt(books.getSelectedRow(), 0)));
-                        rent.setCustomer(customerManager.getCustomerById((Long) customers.getValueAt(customers.getSelectedRow(), 0)));
                         try{
                             rent.setExpectedReturnTime(LocalDate.parse(expectedReturnTime.getText()));
                         } catch (DateTimeParseException e1){
@@ -101,8 +99,11 @@ public class GUI {
                             errorMsg.setVisible(true);
                         }
                         try{
-                            rentManager.createRent(rent);
-                            rentModel.addRents(rentManager.listAllRents());
+                            AddRentSwing swing = new AddRentSwing();
+                            swing.setRent(rent);
+                            swing.setBook((Long) books.getValueAt(books.getSelectedRow(), 0));
+                            swing.setCustomer((Long) customers.getValueAt(customers.getSelectedRow(), 0));
+                            swing.execute();
                         } catch (IllegalEntityException e1){
                             option = JOptionPane.NO_OPTION;
                             errorMsg.setText(e1.getMessage());
@@ -123,8 +124,11 @@ public class GUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(table3.getSelectedRow() != -1){
-                    rentManager.deleteRent((Long) table3.getModel().getValueAt(table3.getSelectedRow(), 0));
-                    rentModel.addRents(rentManager.listAllRents());
+                    DeleteRentSwing swing = new DeleteRentSwing();
+                    swing.setRent((Long) table3.getModel().getValueAt(table3.getSelectedRow(), 0));
+                    swing.execute();
+                }  else {
+                    JOptionPane.showMessageDialog(null, bundle.getString("bookEr"), "Chyba",JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -161,8 +165,10 @@ public class GUI {
                                     errorMsg.setVisible(true);
                                     continue;
                                 }
-                                rentManager.updateRent((Long) table3.getModel().getValueAt(table3.getSelectedRow(), 0), newDate);
-                                rentModel.addRents(rentManager.listAllRents());
+                                UpdateRentSwing swing = new UpdateRentSwing();
+                                swing.setRent((Long) table3.getModel().getValueAt(table3.getSelectedRow(), 0));
+                                swing.setReturnTime(newDate);
+                                swing.execute();
                             } catch(IllegalArgumentException e1){
                                 option = JOptionPane.NO_OPTION;
                                 errorMsg.setText(e1.getMessage());
@@ -210,19 +216,10 @@ public class GUI {
                             customer.setFullName(fullName.getText());
                             customer.setEmail(email.getText());
                             try {
-                                customerManager.createCustomer(customer);
-                            } catch (SQLException e1) {
-                                option = JOptionPane.NO_OPTION;
-                                errorMsg.setText(e1.getMessage());
-                                errorMsg.setVisible(true);
-                            } catch (ValidationException | IllegalArgumentException e1) {
-                                option = JOptionPane.NO_OPTION;
-                                errorMsg.setText(e1.getMessage());
-                                errorMsg.setVisible(true);
-                            }
-                            try {
-                                customerModel.addCustomers(customerManager.listAllCustomers());
-                            } catch (SQLException e1) {
+                                AddCustomerSwing swing = new AddCustomerSwing();
+                                swing.setCustomer(customer);
+                                swing.execute();
+                            } catch (IllegalArgumentException e1) {
                                 option = JOptionPane.NO_OPTION;
                                 errorMsg.setText(e1.getMessage());
                                 errorMsg.setVisible(true);
@@ -242,12 +239,11 @@ public class GUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(table2.getSelectedRow() != -1){
-                    customerManager.deleteCustomer((Long) table2.getModel().getValueAt(table2.getSelectedRow(), 0));
-                    try {
-                        customerModel.addCustomers(customerManager.listAllCustomers());
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                    }
+                    DeleteCustomerSwing swing = new DeleteCustomerSwing();
+                    swing.setCustomer((Long) table2.getModel().getValueAt(table2.getSelectedRow(), 0));
+                    swing.execute();
+                } else {
+                    JOptionPane.showMessageDialog(null, bundle.getString("bookEr"), "Chyba",JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -276,20 +272,13 @@ public class GUI {
                                 customer.setFullName(fullName.getText());
                                 customer.setEmail(email.getText());
                                 try {
-                                    customerManager.updateCustomer(customer);
-                                } catch (SQLException e1) {
+                                    UpdateCustomerSwing swing = new UpdateCustomerSwing();
+                                    swing.setCustomer(customer);
+                                    swing.execute();
+                                } catch (IllegalArgumentException e1) {
                                     option = JOptionPane.NO_OPTION;
                                     errorMsg.setText(e1.getMessage());
                                     errorMsg.setVisible(true);
-                                } catch (ValidationException | IllegalArgumentException e1) {
-                                    option = JOptionPane.NO_OPTION;
-                                    errorMsg.setText(e1.getMessage());
-                                    errorMsg.setVisible(true);
-                                }
-                                try {
-                                    customerModel.addCustomers(customerManager.listAllCustomers());
-                                } catch (SQLException e1) {
-                                    e1.printStackTrace();
                                 }
                             }else{
                                 option = JOptionPane.NO_OPTION;
@@ -299,6 +288,8 @@ public class GUI {
 
                         }
                     }
+                } else {
+                    JOptionPane.showMessageDialog(null, bundle.getString("bookEr"), "Chyba",JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -324,8 +315,11 @@ public class GUI {
                             Book book = new Book();
                             book.setAuthor(author.getText());
                             book.setTitle(title.getText());
-                            bookManager.createBook(book);
+                            //bookManager.createBook(book);
                             bookModel.addBooks(bookManager.listAllBooks());
+                            AddBookSwing swing = new AddBookSwing();
+                            swing.setBook(book);
+                            swing.execute();
                         } else{
                             option = JOptionPane.NO_OPTION;
                             errorMsg.setVisible(true);
@@ -340,10 +334,11 @@ public class GUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(table1.getSelectedRow() != -1){
-                    bookManager.deleteBook((Long) table1.getModel().getValueAt(table1.getSelectedRow(), 0));
-                    bookModel.addBooks(bookManager.listAllBooks());
+                    DeleteBookSwing swing = new DeleteBookSwing();
+                    swing.setBook((Long) table1.getModel().getValueAt(table1.getSelectedRow(), 0));
+                    swing.execute();
                 }
-                else{
+                else {
                     JOptionPane.showMessageDialog(null, bundle.getString("bookEr"), "Chyba",JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -371,8 +366,9 @@ public class GUI {
                             if(author.getText() != null && !author.getText().isEmpty() && title.getText() != null && !title.getText().isEmpty()){
                                 book.setAuthor(author.getText());
                                 book.setTitle(title.getText());
-                                bookManager.updateBook(book);
-                                bookModel.addBooks(bookManager.listAllBooks());
+                                UpdateBookSwing swing = new UpdateBookSwing();
+                                swing.setBook(book);
+                                swing.execute();
                             } else{
                                 option = JOptionPane.NO_OPTION;
                                 errorMsg.setVisible(true);
@@ -381,7 +377,7 @@ public class GUI {
                     }
 
                 }
-                else{
+                else {
                     JOptionPane.showMessageDialog(null, bundle.getString("bookEr"), "Chyba",JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -522,7 +518,7 @@ public class GUI {
         });
     }
 
-    private void prepareDB() {
+    private void prepareDB() throws IOException {
         log.info("gui aplikace inicializována");
 
         ds = null;
@@ -543,23 +539,13 @@ public class GUI {
         customerManager = new CustomerManagerImpl();
         customerManager.setDataSource(ds);
 
-        try{
-            customerManager.createCustomer(sampleCustomer1().build());
-            customerManager.createCustomer(sampleCustomer2().build());
-        } catch (ValidationException | SQLException e){
-            e.printStackTrace();
-        }
-
         bookManager = new BookManagerImpl();
         bookManager.setDataSource(ds);
-
-        bookManager.createBook(sampleBookBuilder().build());
-        bookManager.createBook(sample2BookBuilder().build());
 
         log.info("vytvořeny manažery a uloženy do atributů gui");
     }
 
-    private void createUIComponents(){
+    private void createUIComponents() throws IOException {
         prepareDB();
 
         bookModel = new BookTableModel();
@@ -617,5 +603,292 @@ public class GUI {
                 .id(null) //then change to null, it will automatically change in createCustomer method
                 .email("email@email.com") //then change to null, it will automatically change in createCustomer method
                 .fullName("name"); //then change to null, it will automatically change in createCustomer method
+    }
+
+    private class AddBookSwing extends SwingWorker<Void, Void> {
+
+        private Book book;
+        public void setBook(Book book) {
+            this.book = book;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                get();
+            } catch (ExecutionException e) {
+                log.error("Error while adding book", book, e.getCause());
+                JOptionPane.showMessageDialog(panel1,
+                        bundle.getString("defaultError"),
+                        bundle.getString("bookLabel"),
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            bookManager.createBook(book);
+            bookModel.addBooks(bookManager.listAllBooks());
+            return null;
+        }
+    }
+
+    private class AddCustomerSwing extends SwingWorker<Void, Void> {
+
+        private Customer customer;
+        public void setCustomer(Customer customer) {
+            this.customer = customer;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                get();
+            } catch (ExecutionException e) {
+                log.error("Error while adding customer", customer, e.getCause());
+                JOptionPane.showMessageDialog(panel1,
+                        bundle.getString("defaultError"),
+                        bundle.getString("customerLabel"),
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            customerManager.createCustomer(customer);
+            customerModel.addCustomers(customerManager.listAllCustomers());
+            return null;
+        }
+    }
+
+    private class AddRentSwing extends SwingWorker<Void, Void> {
+
+        private Rent rent;
+        private Long book;
+        private Long customer;
+        public void setRent(Rent rent) {
+            this.rent = rent;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                get();
+            } catch (ExecutionException e) {
+                log.error("Error while adding rent", rent, e.getCause());
+                JOptionPane.showMessageDialog(panel1,
+                        bundle.getString("defaultError"),
+                        bundle.getString("RentTab"),
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            rent.setBook(bookManager.getBookById(book));
+            rent.setCustomer(customerManager.getCustomerById(customer));
+            rentManager.createRent(rent);
+            rentModel.addRents(rentManager.listAllRents());
+            return null;
+        }
+
+        public void setBook(Long book) {
+            this.book = book;
+        }
+
+        public void setCustomer(Long customer) {
+            this.customer = customer;
+        }
+    }
+
+    private class DeleteBookSwing extends SwingWorker<Void, Void> {
+
+        private Long book;
+        public void setBook(Long book) {
+            this.book = book;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                get();
+            } catch (ExecutionException e) {
+                log.error("Error while deleting book", book, e.getCause());
+                JOptionPane.showMessageDialog(panel1,
+                        bundle.getString("defaultError"),
+                        bundle.getString("bookLabel"),
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            bookManager.deleteBook(book);
+            bookModel.addBooks(bookManager.listAllBooks());
+            return null;
+        }
+    }
+
+    private class UpdateBookSwing extends SwingWorker<Void, Void> {
+
+        private Book book;
+        public void setBook(Book book) {
+            this.book = book;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                get();
+            } catch (ExecutionException e) {
+                log.error("Error while updating book", book, e.getCause());
+                JOptionPane.showMessageDialog(panel1,
+                        bundle.getString("defaultError"),
+                        bundle.getString("bookLabel"),
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            bookManager.updateBook(book);
+            bookModel.addBooks(bookManager.listAllBooks());
+            return null;
+        }
+    }
+
+    private class UpdateCustomerSwing extends SwingWorker<Void, Void> {
+
+        private Customer customer;
+        public void setCustomer(Customer customer) {
+            this.customer = customer;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                get();
+            } catch (ExecutionException e) {
+                log.error("Error while updating customer", customer, e.getCause());
+                JOptionPane.showMessageDialog(panel1,
+                        bundle.getString("defaultError"),
+                        bundle.getString("customerLabel"),
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            customerManager.updateCustomer(customer);
+            customerModel.addCustomers(customerManager.listAllCustomers());
+            return null;
+        }
+    }
+
+    private class DeleteCustomerSwing extends SwingWorker<Void, Void> {
+
+        private Long customer;
+        public void setCustomer(Long customer) {
+            this.customer = customer;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                get();
+            } catch (ExecutionException e) {
+                log.error("Error while deleting customer", customer, e.getCause());
+                JOptionPane.showMessageDialog(panel1,
+                        bundle.getString("defaultError"),
+                        bundle.getString("customerLabel"),
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            customerManager.deleteCustomer(customer);
+            customerModel.addCustomers(customerManager.listAllCustomers());
+            return null;
+        }
+    }
+
+    private class UpdateRentSwing extends SwingWorker<Void, Void> {
+
+        private Long rent;
+        private LocalDate returnTime;
+        public void setRent(Long rent) {
+            this.rent = rent;
+        }
+
+        public void setReturnTime(LocalDate returnTime) {
+            this.returnTime = returnTime;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                get();
+            } catch (ExecutionException e) {
+                log.error("Error while updating rent", rent, e.getCause());
+                JOptionPane.showMessageDialog(panel1,
+                        bundle.getString("defaultError"),
+                        bundle.getString("RentTab"),
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            rentManager.updateRent(rent, returnTime);
+            rentModel.addRents(rentManager.listAllRents());
+            return null;
+        }
+    }
+
+    private class DeleteRentSwing extends SwingWorker<Void, Void> {
+
+        private Long rent;
+        public void setRent(Long rent) {
+            this.rent = rent;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                get();
+            } catch (ExecutionException e) {
+                log.error("Error while deleting rent", rent, e.getCause());
+                JOptionPane.showMessageDialog(panel1,
+                        bundle.getString("defaultError"),
+                        bundle.getString("RentTab"),
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            rentManager.deleteRent(rent);
+            rentModel.addRents(rentManager.listAllRents());
+            return null;
+        }
     }
 }

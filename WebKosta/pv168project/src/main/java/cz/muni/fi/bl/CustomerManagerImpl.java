@@ -46,6 +46,7 @@ public class CustomerManagerImpl implements CustomerManager {
             try (PreparedStatement st1 = con.prepareStatement("SELECT * FROM Customer WHERE email = ?")) {
                 st1.setString(1, customer.getEmail());
                 try (ResultSet rs = st1.executeQuery()) {
+                    rs.next();
                     if (rs.next()) {
                         log.error("Email is existing");
                         throw new IllegalArgumentException("email is existing");
